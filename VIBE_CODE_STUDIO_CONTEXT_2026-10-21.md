@@ -131,7 +131,16 @@ Tài liệu bàn giao để tiếp tục ở phiên khác. Ghi lại **quyết �
 - Prompt ChatGPT: `VIBE_CODE_STUDIO_ANIMATION_PROMPTS.md` (mục 13 = mẫu re-skin chuẩn, mục 14–15 = mẫu prompt độc lập, mục 16 = khu review).
 - Máy hiện tại: **macOS**, Node v26.5.0 → dùng `npm run dev` (không cần `npm.cmd`).
 
-### 0b. Chạy tiếp trên MÁY MỚI
+### 0a. CHUYỂN MÁY (cập nhật 22/10 — dùng mục này, mục 0b bên dưới là bản Windows cũ)
+
+1. `git clone https://github.com/ocanhdt12-gif/agent2d.git` → `cd agent2d` → `npm install` (Node 24+).
+2. `npm run dev` → mở **http://localhost:5173/coding-test.html** (trang chính hiện tại: 15 nhân vật + idle). Windows PowerShell: dùng `npm.cmd`.
+3. Mở Claude Code trong thư mục, nhắn: *"Đọc `VIBE_CODE_STUDIO_CONTEXT_2026-10-21.md` và `VIBE_CODE_STUDIO_ANIMATION_PROMPTS.md`, làm tiếp từ mục IDLE."*
+4. Không nằm trong repo (phải làm lại trên máy mới): `.claude/launch.json` (preview `vite-dev` cổng 5173, `deploy-preview` cổng 5180), đăng nhập `gh auth login` và `npx vercel login`, các script cắt sheet tạm ở thư mục nháp (cách làm đã ghi trong context: cắt nhãn sprite đứng, khối nhãn độ rộng không đổi, despeck, cắt lưới `SPLIT`).
+5. Deploy lại: `node scripts/build-deploy.mjs` → `cd dist-deploy && npx vercel deploy --prod --yes --name vibe-code-studio` (link https://vibe-code-studio-zeta.vercel.app — bản trên Vercel CHƯA có idle).
+6. **Đang dở:** idle mới làm cho Pixel; tiếp theo gen sheet idle (prompt mục 24) cho 14 nhân vật còn lại, rồi chuyển `coding-test.ts` vào scene thật + nối `/api/state` theo bảng quy đổi role.
+
+
 
 1. Giải nén `vibe-code-studio_2026-10-22.zip` (đã bỏ `node_modules/`, `dist/`) vào một thư mục, ví dụ `C:\Users\<ban>\Documents\db`.
 2. Cài **Node.js 24** (máy cũ: Node v24.14.1, npm 11.11.0).
