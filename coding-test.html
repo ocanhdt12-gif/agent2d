@@ -11,6 +11,8 @@
   .bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px 16px;background:var(--panel)}
   #bar-review{border-top:1px solid #2a3b5c}
   #bar-review b{color:#c28aff}
+  #bar-idle{border-top:1px solid #2a3b5c}
+  #bar-idle b{color:#ffb35c}
   .bar b{margin-right:6px;color:var(--accent)}
   .bar button{background:#22324f;color:var(--text);border:1px solid #33496f;border-radius:4px;padding:5px 9px;font:inherit;cursor:pointer}
   .bar button.on{background:var(--accent);color:#06121f;border-color:var(--accent)}
@@ -41,6 +43,7 @@
 </div>
 <div id="bar" class="bar"><b>CODING TEST</b><span id="force"></span><small style="color:var(--muted)">· click ghế để thêm/bớt người</small></div>
 <div id="bar-review" class="bar"><b>REVIEW</b><span id="force-review"></span></div>
+<div id="bar-idle" class="bar"><b>IDLE</b><span id="force-idle"></span><small style="color:var(--muted)">· thử với Pixel; clone để thử không ngồi đè</small></div>
 <div id="world"></div>
 <div id="log"></div>
 <script type="module" src="/src/coding-test.ts"></script>

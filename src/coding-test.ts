@@ -2,6 +2,7 @@
 // Poses come from public/assets/<character>/coding/manifest.json (scripts/build-coding-manifest.mjs).
 import {Application,Assets,Container,Graphics,Sprite,Text,Texture} from 'pixi.js';
 import {buildIcons,iconSprite,isIcon,setIcon} from './pixel-icons';
+import {IdleAgent,IdleWorld} from './idle';
 
 type PoseInfo={file:string;width:number;height:number;bbox:number[];anchorX:number;anchorY:number};
 type Manifest={scale:number;poses:Record<string,PoseInfo>};
@@ -109,6 +110,7 @@ const reviewCasts:Cast[]=await Promise.all(REVIEWERS.map(name=>loadCast(name,'re
 const eveCast=await loadCast('eve','merge');
 const theoCast=await loadCast('theo','plan');
 const pixelCast=await loadCast('pixel','relax');
+const pixelIdleCast=await loadCast('pixel','idle');
 const oracleCast=await loadCast('oracle','plan');
 const sherlockCast=await loadCast('sherlock','review');
 const office=await load('/assets/environment/office_original.png');
@@ -841,11 +843,17 @@ oracleSeat.setOccupied(true,oracleCast);
 const sherlockSeat=new ReviewSeat(0,SHERLOCK_STATION);
 sherlockSeat.setOccupied(true,sherlockCast);
 const reviewZone=[...reviewSeats,eveSeat,theoSeat,pixelSeat,oracleSeat,sherlockSeat];
+// Idle test: Pixel can leave her sofa desk and idle in the Cafe/Lounge; extra clones test that idle agents
+// never take the same or an overlapping slot. Her work seat blocks the nearby sofa slot while she works.
+const idleWorld=new IdleWorld(layer);
+idleWorld.blockers.push({id:'P',x:RELAX_STATION.x,y:RELAX_STATION.y,active:()=>pixelSeat.occupied});
+const pixelIdle=new IdleAgent(idleWorld,pixelIdleCast);
+const idleClones:IdleAgent[]=[];
 // Debug hook for driving the test page from devtools (step frames while the tab is hidden).
 // Everything is loaded and placed: fade the loading screen out.
 const loadingScreen=document.getElementById('loading');
 if(loadingScreen){loadingScreen.classList.add('done');setTimeout(()=>loadingScreen.remove(),600)}
-Object.assign(window,{__test:{app,seats,reviewSeats,eveSeat,theoSeat,pixelSeat,oracleSeat,sherlockSeat}});
+Object.assign(window,{__test:{idleWorld,pixelIdle,idleClones,app,seats,reviewSeats,eveSeat,theoSeat,pixelSeat,oracleSeat,sherlockSeat}});
 
 const forceBar=document.getElementById('force')!;
 const buttons:[string,Action|null][]=[['Random',null],['Gõ thường','type'],['Gõ nhanh','type_fast'],['Siêu tốc 🔥','type_super'],['Nói trái','talk_left'],['Nói phải','talk_right'],['Xoay trái','swivel_left'],['Xoay phải','swivel_right']];
@@ -863,12 +871,23 @@ for(const [label,action] of reviewButtons){
   reviewBar.appendChild(b);
 }
 
+const idleBar=document.getElementById('force-idle')!;
+const idleButtons:[string,()=>void][]=[
+  ['Pixel làm việc',()=>{pixelIdle.stop();pixelSeat.setOccupied(true,pixelCast)}],
+  ['Pixel idle',()=>{pixelSeat.setOccupied(false);if(!pixelIdle.active)pixelIdle.start(performance.now())}],
+  ['Đổi chỗ',()=>{for(const a of idleWorld.agents)a.relocate(performance.now())}],
+  ['+ Clone idle',()=>{const c=new IdleAgent(idleWorld,pixelIdleCast);if(c.start(performance.now()))idleClones.push(c);else c.stop()}],
+  ['Xoá clone',()=>{for(const c of idleClones)c.stop();idleClones.length=0}],
+];
+for(const [label,fn] of idleButtons){const b=document.createElement('button');b.textContent=label;b.onclick=fn;idleBar.appendChild(b)}
+
 const log=document.getElementById('log')!;
 let logClock=0;
 app.ticker.add(ticker=>{
   const now=performance.now(),dt=ticker.deltaMS;
   for(const s of seats)s.update(now,dt);
   for(const s of reviewZone)s.update(now,dt);
+  idleWorld.update(now,dt);
   if((logClock+=dt)>250){
     logClock=0;
     log.innerHTML=seats.map(s=>`<div>Ghế ${s.index+1} ${s.occupied?`${s.cast.name} · <b>${s.action}</b><br><small>${s.lean} · ${s.pose}</small>`:'<small>trống</small>'}</div>`).join('')
