@@ -47,8 +47,12 @@ const FADE_MS=300;
 const rand=(a:number,b:number)=>a+Math.random()*(b-a);
 const pick=<T>(items:[T,number][])=>{let r=Math.random()*items.reduce((s,[,w])=>s+w,0);for(const [it,w] of items)if((r-=w)<0)return it;return items[0][0]};
 
+// ONE CHARACTER, ONE SPRITE: in the real scene a character is either working at its seat or idling here,
+// never both and never twice. `isWorking` is wired to the work seats; only test clones (clone=true) may
+// share a character.
 export class IdleWorld{
   owner=new Map<string,IdleAgent>();
+  isWorking:(name:string)=>boolean=()=>false;
   // Work seats that block nearby idle slots while someone works there.
   blockers:{id:string;x:number;y:number;active:()=>boolean}[]=[];
   agents:IdleAgent[]=[];
@@ -77,6 +81,10 @@ export class IdleWorld{
     const g=agent.slot?.group;if(!g)return null;
     return this.agents.find(a=>a!==agent&&a.active&&!a.fadingOut&&a.slot?.group===g)??null;
   }
+  // The real (non-clone) idle agent of a character, if any.
+  agentOf(name:string){return this.agents.find(a=>!a.clone&&a.cast.name===name)}
+  // A character got work: its idle sprite leaves immediately.
+  leave(name:string){for(const a of this.agents)if(a.cast.name===name&&!a.clone&&a.active)a.stop()}
   update(now:number,dt:number){for(const a of this.agents)a.update(now,dt)}
 }
 
@@ -96,7 +104,8 @@ export class IdleAgent{
   fade=1;
   fadingOut=false;
   particleClock=0;
-  constructor(public world:IdleWorld,public cast:IdleCast){
+  constructor(public world:IdleWorld,public cast:IdleCast,public clone=false){
+    if(!clone&&world.agentOf(cast.name))throw new Error(`idle agent for ${cast.name} already exists`);
     this.bubble.addChild(new Graphics().roundRect(-13,-12,26,22,7).fill('#ffffff').stroke({color:'#16223a',width:2}).poly([-4,10,4,10,-2,16]).fill('#ffffff'),this.icon);
     this.bubble.visible=false;
     this.root.addChild(this.sprite,this.fx,this.bubble);
@@ -106,6 +115,8 @@ export class IdleAgent{
   get head(){return this.sprite.height}
   // Start the break at the coffee counter (or the first routine zone with room).
   start(now:number){
+    if(this.active)return true;
+    if(!this.clone&&this.world.isWorking(this.cast.name))return false;
     for(let i=0;i<ROUTINE.length;i++){
       const slot=this.world.claim(this,ROUTINE[i][0]);
       if(slot){this.step=i;this.active=true;this.place(slot,now);this.root.visible=true;this.fade=0;this.fadingOut=false;return true}

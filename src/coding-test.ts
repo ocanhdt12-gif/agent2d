@@ -36,6 +36,14 @@ const FADE_MS=120;
 const FIRE_SCALE=0.1071*1.2;
 // Test control: force every seat into one action, or null for random.
 let forced:Action|null=null;
+// Called when a seat gets a character: its idle sprite (if any) must leave. Wired once the idle world exists.
+let onSeated:(name:string)=>void=()=>{};
+// Is this character already shown somewhere other than `except` (work seats + real idle agents)?
+// Filled once all seats and the idle world exist (they are created further down).
+let stageSeats:{occupied:boolean;cast:{name:string}}[]=[];
+let idleWorldRef:IdleWorld|undefined;
+const onStage=(name:string,except?:unknown)=>
+  stageSeats.some(s=>s!==except&&s.occupied&&s.cast.name===name)||!!idleWorldRef?.agentOf(name)?.active;
 
 // Review zone (prompt mục 16c): reviewers sit with their back to the camera, facing the desk at the
 // upper-right. Poses from public/assets/<character>/review/manifest.json; gentle, feminine actions only.
@@ -172,7 +180,9 @@ class Seat{
     this.root.eventMode='static';this.root.cursor='pointer';
     this.root.hitArea={contains:(px:number,py:number)=>px>-45&&px<45&&py>-150&&py<5};
     this.root.on('pointertap',()=>{
-      const next=this.occupied?casts.indexOf(this.cast)+1:0;
+      // cycle empty -> each builder not already on stage elsewhere -> empty
+      let next=this.occupied?casts.indexOf(this.cast)+1:0;
+      while(next<casts.length&&onStage(casts[next].name,this))next++;
       this.setOccupied(next<casts.length,casts[next]);
     });
     layer.addChild(this.root);
@@ -180,6 +190,7 @@ class Seat{
   }
   setOccupied(value:boolean,cast=this.cast){
     this.occupied=value;this.cast=cast;
+    if(value)onSeated(cast.name);
     this.chair.visible=!value;
     for(const s of [this.back,this.front,this.glyphs,this.bubble,this.fire])s.visible=false;
     if(value){this.front.visible=true;this.pose='';this.lean=this.randomLean();this.next(performance.now())}
@@ -448,7 +459,8 @@ class ReviewSeat{
     this.root.eventMode='static';this.root.cursor='pointer';
     this.root.hitArea={contains:(px:number,py:number)=>px>-45&&px<45&&py>-st.head&&py<5};
     this.root.on('pointertap',()=>{
-      const next=this.occupied?st.pool.indexOf(this.cast)+1:0;
+      let next=this.occupied?st.pool.indexOf(this.cast)+1:0;
+      while(next<st.pool.length&&onStage(st.pool[next].name,this))next++;
       this.setOccupied(next<st.pool.length,st.pool[next]);
     });
     layer.addChild(this.root);
@@ -456,6 +468,7 @@ class ReviewSeat{
   }
   setOccupied(value:boolean,cast=this.cast){
     this.occupied=value;this.cast=cast;
+    if(value)onSeated(cast.name);
     this.chair.visible=!value&&this.st.chair;
     for(const s of [this.back,this.front,this.bubble])s.visible=false;
     this.hideFx();this.reactUntil=0;this.clapAt=0;
@@ -847,6 +860,11 @@ const reviewZone=[...reviewSeats,eveSeat,theoSeat,pixelSeat,oracleSeat,sherlockS
 // never take the same or an overlapping slot. Her work seat blocks the nearby sofa slot while she works.
 const idleWorld=new IdleWorld(layer);
 idleWorld.blockers.push({id:'P',x:RELAX_STATION.x,y:RELAX_STATION.y,active:()=>pixelSeat.occupied});
+// One character, one sprite: a name counts as on stage when it occupies any work seat or idles for real.
+idleWorld.isWorking=name=>[...seats,...reviewZone].some(s=>s.occupied&&s.cast.name===name);
+onSeated=name=>idleWorld.leave(name);
+idleWorldRef=idleWorld;
+stageSeats=[...seats,...reviewZone];
 const pixelIdle=new IdleAgent(idleWorld,pixelIdleCast);
 const idleClones:IdleAgent[]=[];
 // Debug hook for driving the test page from devtools (step frames while the tab is hidden).
@@ -876,7 +894,7 @@ const idleButtons:[string,()=>void][]=[
   ['Pixel làm việc',()=>{pixelIdle.stop();pixelSeat.setOccupied(true,pixelCast)}],
   ['Pixel idle',()=>{pixelSeat.setOccupied(false);if(!pixelIdle.active)pixelIdle.start(performance.now())}],
   ['Bước tiếp (quầy → bàn → sofa)',()=>{for(const a of idleWorld.agents)a.advance(performance.now())}],
-  ['+ Clone idle',()=>{const c=new IdleAgent(idleWorld,pixelIdleCast);if(c.start(performance.now()))idleClones.push(c);else c.stop()}],
+  ['+ Clone idle (test)',()=>{const c=new IdleAgent(idleWorld,pixelIdleCast,true);if(c.start(performance.now()))idleClones.push(c);else c.stop()}],
   ['Xoá clone',()=>{for(const c of idleClones)c.stop();idleClones.length=0}],
 ];
 for(const [label,fn] of idleButtons){const b=document.createElement('button');b.textContent=label;b.onclick=fn;idleBar.appendChild(b)}
