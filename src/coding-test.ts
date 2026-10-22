@@ -121,7 +121,7 @@ const eveCast=await loadCast('eve','merge');
 const theoCast=await loadCast('theo','plan');
 const pixelCast=await loadCast('pixel','relax');
 // Characters that already have an idle sheet (prompt mục 24 / 24a); one at a time, Nova first among the rest.
-const IDLERS=['pixel','nova','orion','lyra','vega','atlas','comet','sage'];
+const IDLERS=['pixel','nova','orion','lyra','vega','atlas','comet','sage','iris','juno','echo','eve','theo','oracle','sherlock'];
 const idleCasts=await Promise.all(IDLERS.map(name=>loadCast(name,'idle')));
 const oracleCast=await loadCast('oracle','plan');
 const sherlockCast=await loadCast('sherlock','review');
@@ -882,17 +882,33 @@ for(const cast of idleCasts){
 goIdle=seat=>{
   const entry=idlers.get(seat.cast.name);
   if(!entry)return false;
-  entry.home=seat as HomeSeat;entry.cast=(seat as HomeSeat).cast;
+  // Break area full: the character stays at work (never leave the seat without a slot to go to).
+  if(!idleWorld.hasRoom(entry.agent)){showFull(seat as HomeSeat);return true}
+  const cast=(seat as HomeSeat).cast;
+  entry.home=seat as HomeSeat;entry.cast=cast;
   seat.setOccupied(false);
-  entry.agent.start(performance.now());
+  if(!entry.agent.start(performance.now()))(seat as HomeSeat).setOccupied(true,cast);
   return true;
 };
+// Short "full" note over a seat whose character could not go on a break.
+function showFull(seat:HomeSeat){
+  const root=(seat as unknown as {root:Container}).root;
+  const t=new Text({resolution:3,text:'hết chỗ nghỉ',style:{fontFamily:'"Nunito","Trebuchet MS",sans-serif',fontSize:11,fontWeight:'900',fill:'#ffd84d',stroke:{color:'#16223a',width:3}}});
+  t.anchor.set(.5);t.position.set(root.x,root.y-150);t.zIndex=1e6;layer.addChild(t);
+  const t0=performance.now();
+  const tick=()=>{const k=(performance.now()-t0)/1400;if(k>=1){t.destroy();app.ticker.remove(tick);return}t.y=root.y-150-k*14;t.alpha=1-k*k};
+  app.ticker.add(tick);
+}
 // Back to the seat it left; if someone took that seat meanwhile, it keeps idling.
 function backToWork(name:string){
   const entry=idlers.get(name);
   if(!entry?.home||entry.home.occupied)return;
   entry.agent.stop();entry.home.setOccupied(true,entry.cast!);
 }
+// The glass railing below REVIEW stands in front of the V1 viewpoint: a cut of it (opaque bar/posts/
+// plants, see-through glass) is layered just above whoever stands there.
+const railFg=new Sprite(await load('/assets/environment/review_rail_fg.png'));
+railFg.position.set(240,890);railFg.zIndex=984.5;layer.addChild(railFg);
 const pixelIdle=idlers.get('pixel')!.agent;
 idlers.get('pixel')!.home=pixelSeat;idlers.get('pixel')!.cast=pixelCast;
 function togglePixel(){
@@ -928,11 +944,40 @@ const idleButtons:[string,()=>void][]=[
   ['Pixel ↔',togglePixel],
   // one toggle per builder / reviewer that has an idle sheet
   ...IDLERS.filter(name=>name!=='pixel').map(name=>[`${name[0].toUpperCase()+name.slice(1)} ↔`,()=>{
-    const s=[...seats,...reviewSeats].find(s=>s.occupied&&s.cast.name===name);if(s)goIdle(s);else backToWork(name);
+    const s=[...seats,...reviewZone].find(s=>s.occupied&&s.cast.name===name);if(s)goIdle(s);else backToWork(name);
   }] as [string,()=>void]),
   ['Đổi chỗ ngẫu nhiên',()=>{for(const {agent} of idlers.values())agent.advance(performance.now())}],
 ];
 for(const [label,fn] of idleButtons){const b=document.createElement('button');b.textContent=label;b.onclick=fn;idleBar.appendChild(b)}
+
+// Auto shift: every character alternates a random stretch of work and a random break (test page stand-in
+// for /api/state). A full break area keeps the character at work and it tries again a little later.
+const WORK_SECONDS:[number,number]=[40,100],BREAK_SECONDS:[number,number]=[25,60];
+const shiftAt=new Map<string,number>();
+let autoShift=true;
+const randMs=([a,b]:[number,number])=>(a+Math.random()*(b-a))*1000;
+const workSeatOf=(name:string)=>[...seats,...reviewZone].find(s=>s.occupied&&s.cast.name===name);
+function updateShifts(now:number){
+  if(!autoShift)return;
+  for(const [name,entry] of idlers){
+    // Stagger the first switch so the whole office does not leave at once.
+    if(!shiftAt.has(name)){shiftAt.set(name,now+randMs(WORK_SECONDS)*Math.random());continue}
+    if(now<shiftAt.get(name)!)continue;
+    const seat=workSeatOf(name);
+    if(seat){
+      goIdle(seat);
+      shiftAt.set(name,now+(entry.agent.active?randMs(BREAK_SECONDS):rand(5,10)*1000));
+    }else if(entry.agent.active){
+      backToWork(name);
+      shiftAt.set(name,now+(entry.agent.active?rand(5,10)*1000:randMs(WORK_SECONDS)));
+    }else shiftAt.set(name,now+randMs(WORK_SECONDS));
+  }
+}
+const shiftButton=document.createElement('button');
+const paintShift=()=>{shiftButton.textContent=autoShift?'Tự động làm ↔ nghỉ: BẬT':'Tự động làm ↔ nghỉ: TẮT';shiftButton.classList.toggle('on',autoShift)};
+shiftButton.onclick=()=>{autoShift=!autoShift;shiftAt.clear();paintShift()};
+paintShift();idleBar.appendChild(shiftButton);
+Object.assign((window as unknown as {__test:object}).__test,{updateShifts});
 
 const log=document.getElementById('log')!;
 let logClock=0;
@@ -941,6 +986,7 @@ app.ticker.add(ticker=>{
   for(const s of seats)s.update(now,dt);
   for(const s of reviewZone)s.update(now,dt);
   idleWorld.update(now,dt);
+  updateShifts(now);
   if((logClock+=dt)>250){
     logClock=0;
     log.innerHTML=seats.map(s=>`<div>Ghế ${s.index+1} ${s.occupied?`${s.cast.name} · <b>${s.action}</b><br><small>${s.lean} · ${s.pose}</small>`:'<small>trống</small>'}</div>`).join('')

@@ -2756,6 +2756,784 @@ Nhận sheet về: lưu **`public/assets/iris/idle_sheet.png`** → cắt → ma
 
 ⚠ Iris thích biểu cảm → GPT dễ tự vẽ tim/lấp lánh quanh nhân vật; nếu có thì xoá blob riêng như "Zzz" của Vega.
 
+
+### 24j. IDLE — JUNO (reviewer nữ, mẫu = sheet idle PIXEL)
+
+Cùng khung 24h. Juno dịu dàng, tỉ mỉ, hơi nhút nhát: động tác nhỏ, ngồi khép gối, đẩy kính, cười che miệng. Đính kèm 3 ảnh theo đúng thứ tự:
+1. `public/assets/pixel/idle_sheet.png`
+2. `public/assets/juno/review/type_a.png`
+3. `public/assets/juno/review/talk_left.png`
+
+```text
+Draw a 12-pose IDLE sprite sheet of JUNO, a code reviewer (girl) of my
+isometric pixel-art office game, relaxing on her break in the CAFE and the
+LOUNGE. Do everything in one go without asking me anything.
+
+ATTACHED:
+- IMAGE 1: the APPROVED idle sheet of another character (Pixel). It is the
+  TEMPLATE: copy its layout (6 columns x 2 rows), the pose order, the
+  facing direction of every pose, the wooden cafe chairs (same chair, same
+  angle, same chair-to-body size), the sprite scale and the warm lighting
+  EXACTLY. Only the character, her gestures, expressions and props change.
+  Do NOT copy anything of Pixel's look (no ice-blue wolf cut, no yellow
+  cardigan, no jeans; Juno's glasses are her own thin gold round ones).
+  In chair_front_* the chair seat faces the LOWER-LEFT toward the viewer;
+  in chair_back_* the chair is seen from behind, seat facing the
+  UPPER-RIGHT toward the table, backrest toward the viewer.
+- IMAGES 2-3: JUNO, approved, sitting at her work desk. Image 2 from
+  behind, image 3 turning her head so her face shows. Use them ONLY for her
+  look - do NOT draw the purple office chair from these images. Keep her
+  EXACTLY: pale SILVER-LAVENDER hair in TWO long loose BRAIDS, each tied
+  with a small sky-blue ribbon, soft wispy fringe; a slouchy CREAM BERET
+  tilted on the back of her head; round thin gold glasses, gentle
+  blue-violet eyes; a SKY-BLUE pinafore dress over a white blouse with puff
+  sleeves and a round lace collar, the pinafore straps crossing on her back
+  and meeting in a small white bow; white frilly ankle socks; light-brown
+  mary-jane shoes; a tiny bookmark charm on a ribbon around her wrist.
+  Same chibi proportions (big head), same thick dark outline, same colours.
+  She is gentle, soft-spoken, meticulous and a little shy - small, careful,
+  graceful gestures, knees always together.
+
+HER ACCESSORIES ON BREAK (instead of Pixel's): a clear glass of iced
+matcha latte with a paper straw (sit_drink, chair_*_drink, stand_drink), a
+small pastel knitting project - two needles and a ball of sky-blue yarn
+(sit_relax), her phone showing a cosy farming game (sit_phone), a matcha
+whisk and a small ceramic bowl (stand_brew).
+
+THE 12 POSES (same order and angles as IMAGE 1, soft and gentle):
+row 1 — lounge, NO furniture drawn:
+  sit_relax  - FRONT view facing the LOWER-RIGHT, sitting with knees
+               together and slightly to one side, knitting with the two
+               needles, the yarn ball on her lap, calm content smile
+  sit_drink  - same facing, holding the iced matcha glass with both hands
+               close to her chest, sipping from the paper straw, eyes
+               half-closed, peaceful
+  sit_phone  - same facing, holding her phone close with both hands,
+               playing a cosy game, pushing her glasses up with one finger
+  sit_laugh  - same facing, a shy giggle, eyes closed in soft arcs, one
+               hand covering her mouth, shoulders raised a little
+  sit_doze   - same facing, dozing off with her cheek resting on her hand,
+               elbow on her knee, glasses slightly slipped down her nose,
+               braids hanging forward (the game adds "Zzz")
+  sit_back   - BACK view facing the UPPER-LEFT, her two braids, the beret
+               and the crossed pinafore straps with the white bow toward
+               the viewer, sitting neatly, hands on lap
+row 2 — cafe chair (chair INCLUDED, copy IMAGE 1) and standing:
+  chair_front_drink - FRONT chair, facing the LOWER-LEFT, knees together,
+               ankles crossed, sipping the iced matcha through the straw
+  chair_front_talk  - same chair and angle, listening and replying softly,
+               hands folded on her lap, head tilted, gentle smile
+  chair_back_drink  - BACK chair, facing the UPPER-RIGHT toward the table,
+               back to the viewer, matcha glass raised to her mouth, braids
+               and beret toward the viewer
+  chair_back_talk   - same chair and angle, head turned to the left in
+               profile, chatting quietly, one hand touching the end of a
+               braid
+  stand_brew - STANDING, back to the viewer, facing the UPPER-LEFT,
+               whisking matcha in the small ceramic bowl at an (undrawn)
+               counter, careful and focused
+  stand_drink- STANDING, FRONT view facing the LOWER-RIGHT, holding the
+               iced matcha glass with both hands in front of her, feet
+               together, a little shy smile
+
+OUTPUT: ONE image, landscape 1536x1024, the 12 sprites on a 6x2 grid.
+- every sprite at the same scale (Juno's head the same size in all 12, and
+  the same head size as Pixel's in IMAGE 1); her braids and beret must stay
+  fully inside the sprite cell
+- the exact pose name as a small label under each sprite, with AT LEAST
+  40 px of empty background between the lowest point of the sprite (feet or
+  chair legs) and the label; leave a clear empty band between the 2 rows
+- background: genuinely transparent. If you cannot, use a FLAT SOLID
+  MAGENTA #FF00FF background. NEVER draw a checkerboard, NEVER a grey or
+  black background
+- do NOT draw "Zzz", hearts, sparkles, steam, music notes, sweat drops or
+  other effect symbols (the game adds its own effects)
+- NO table, sofa, counter, machine, office chair, floor, cast shadow or
+  glow halo (the wooden cafe chairs in chair_* poses are the only furniture)
+- gaps between legs, chair legs, arms and body = background too
+- crisp pixel-art clusters, dark outlines, warm amber cafe lighting;
+  no blur, no 3D render; no text except the labels
+```
+
+Nhận sheet về: lưu **`public/assets/juno/idle_sheet.png`** → cắt → manifest theo cỡ ghế (ghế `chair_back_drink` ≈ 112 px như Pixel) → thêm `juno` vào `IDLERS`.
+
+### 24k. IDLE — ECHO (reviewer nữ, mẫu = sheet idle PIXEL)
+
+Cùng khung 24h. Echo trầm lặng, lạnh, phân tích: ít cử động, khoanh tay, nhắm mắt nghe nhạc gật gù, cười nửa miệng, ngủ trùm mũ hoodie. Đính kèm 3 ảnh theo đúng thứ tự:
+1. `public/assets/pixel/idle_sheet.png`
+2. `public/assets/echo/review/type_a.png`
+3. `public/assets/echo/review/talk_left.png`
+
+```text
+Draw a 12-pose IDLE sprite sheet of ECHO, a code reviewer (girl) of my
+isometric pixel-art office game, relaxing on her break in the CAFE and the
+LOUNGE. Do everything in one go without asking me anything.
+
+ATTACHED:
+- IMAGE 1: the APPROVED idle sheet of another character (Pixel). It is the
+  TEMPLATE: copy its layout (6 columns x 2 rows), the pose order, the
+  facing direction of every pose, the wooden cafe chairs (same chair, same
+  angle, same chair-to-body size), the sprite scale and the warm lighting
+  EXACTLY. Only the character, her gestures, expressions and props change.
+  Do NOT copy anything of Pixel's look (no ice-blue wolf cut, no glasses,
+  no yellow cardigan, no jeans).
+  In chair_front_* the chair seat faces the LOWER-LEFT toward the viewer;
+  in chair_back_* the chair is seen from behind, seat facing the
+  UPPER-RIGHT toward the table, backrest toward the viewer.
+- IMAGES 2-3: ECHO, approved, sitting at her work desk. Image 2 from
+  behind, image 3 turning her head so her face shows. Use them ONLY for her
+  look - do NOT draw the purple office chair from these images. Keep her
+  EXACTLY: a sleek CHIN-LENGTH BOB of glossy BLACK hair with a hidden
+  MINT-GREEN underlayer showing at the back and the tips, long straight
+  fringe; a small WHITE wireless headphone band with mint ear cups; calm
+  grey-green eyes, a tiny silver star stud earring; an oversized
+  CHARCOAL-GREY cropped hoodie-jacket with a high collar, thin mint seam
+  lines and a small mint sound-wave logo on the back, sleeves covering half
+  her hands; white pleated mini skirt with a thin mint hem stripe; black
+  thigh-high socks; chunky white sneakers with mint soles; a small mint
+  bug-shaped keychain on her skirt. NO purple or violet anywhere on her -
+  her palette is black / charcoal / white + mint green. Same chibi
+  proportions (big head), same thick dark outline, same colours.
+  She is quiet, cool and analytical - few movements, calm half-closed eyes,
+  a faint half smile at most; she lives in her music.
+
+HER ACCESSORIES ON BREAK (instead of Pixel's): the white thermos tumbler
+with a mint lid (sit_drink, chair_*_drink, stand_drink), her phone in a
+black case showing a music player (sit_phone), the white headphones -
+worn on her ears when listening (sit_relax, sit_back), a refill of hot
+water poured into the tumbler from an (undrawn) dispenser (stand_brew).
+
+THE 12 POSES (same order and angles as IMAGE 1, calm and minimal):
+row 1 — lounge, NO furniture drawn:
+  sit_relax  - FRONT view facing the LOWER-RIGHT, sitting with legs
+               crossed, headphones ON her ears, eyes closed, head tilted,
+               nodding along to music, one finger tapping her knee
+  sit_drink  - same facing, holding the thermos tumbler with both
+               sleeve-covered hands, sipping, eyes half-closed
+  sit_phone  - same facing, scrolling a playlist on her phone with her
+               thumb, the other arm folded across her waist, expressionless
+  sit_laugh  - same facing, a small one-sided smirk, eyes closed, arms
+               crossed, shoulders shaking a little (a quiet laugh)
+  sit_doze   - same facing, dozing off with the hoodie HOOD pulled up over
+               her head, arms crossed, chin tucked into the high collar,
+               only the fringe and the mint tips peeking out (the game adds
+               "Zzz")
+  sit_back   - BACK view facing the UPPER-LEFT, the black bob with the
+               mint underlayer, the headphones and the mint sound-wave logo
+               toward the viewer, sitting still, hands in her sleeves
+row 2 — cafe chair (chair INCLUDED, copy IMAGE 1) and standing:
+  chair_front_drink - FRONT chair, facing the LOWER-LEFT, legs crossed,
+               sipping from the tumbler, headphones resting around her neck
+  chair_front_talk  - same chair and angle, arms crossed, replying with a
+               short remark, one eyebrow raised, faint half smile
+  chair_back_drink  - BACK chair, facing the UPPER-RIGHT toward the table,
+               back to the viewer, tumbler raised to her mouth, mint
+               underlayer and logo toward the viewer
+  chair_back_talk   - same chair and angle, head turned to the left in
+               profile, chatting quietly, chin resting on her hand
+  stand_brew - STANDING, back to the viewer, facing the UPPER-LEFT, holding
+               the open tumbler under an (undrawn) hot-water tap, other hand
+               in her hoodie pocket
+  stand_drink- STANDING, FRONT view facing the LOWER-RIGHT, one hand in her
+               hoodie pocket, the other holding the tumbler, headphones
+               around her neck, cool relaxed stance
+
+OUTPUT: ONE image, landscape 1536x1024, the 12 sprites on a 6x2 grid.
+- every sprite at the same scale (Echo's head the same size in all 12, and
+  the same head size as Pixel's in IMAGE 1)
+- the exact pose name as a small label under each sprite, with AT LEAST
+  40 px of empty background between the lowest point of the sprite (feet or
+  chair legs) and the label; leave a clear empty band between the 2 rows
+- background: genuinely transparent. If you cannot, use a FLAT SOLID
+  MAGENTA #FF00FF background. NEVER draw a checkerboard, NEVER a grey or
+  black background
+- do NOT draw "Zzz", music notes, sound waves in the air, steam, sparkles,
+  sweat drops or other effect symbols (the game adds its own effects)
+- NO table, sofa, counter, machine, office chair, floor, cast shadow or
+  glow halo (the wooden cafe chairs in chair_* poses are the only furniture)
+- gaps between legs, chair legs, arms and body = background too
+- crisp pixel-art clusters, dark outlines, warm amber cafe lighting;
+  no blur, no 3D render; no text except the labels
+```
+
+Nhận sheet về: lưu **`public/assets/echo/idle_sheet.png`** → cắt → manifest theo cỡ ghế (ghế `chair_back_drink` ≈ 112 px như Pixel) → thêm `echo` vào `IDLERS`.
+
+⚠ Echo tóc + áo đen/xám than → nếu GPT trả nền đen/xám thì cắt bằng `unblack.mjs` / `ungrey.mjs` sẽ ăn vào nhân vật; bắt buộc yêu cầu gen lại nền magenta.
+
+### 24l. IDLE — EVE (Merge lead nữ, mẫu = sheet idle PIXEL)
+
+Eve lúc làm việc **chỉ đứng** (ảnh 2–3 không có ghế) → prompt dặn rõ: lúc nghỉ **được ngồi** sofa/ghế cafe như mọi người. Tính cách trung tâm, nổi bật, tự tin: ngồi bắt chéo chân kiểu "boss", vươn vai, cười tươi, ngủ với kính râm đẩy lên đầu. Đính kèm 3 ảnh theo đúng thứ tự:
+1. `public/assets/pixel/idle_sheet.png`
+2. `public/assets/eve/merge/type_a.png`
+3. `public/assets/eve/merge/talk_left.png`
+
+```text
+Draw a 12-pose IDLE sprite sheet of EVE, the MERGE LEAD (team manager,
+girl) of my isometric pixel-art office game, relaxing on her break in the
+CAFE and the LOUNGE. Do everything in one go without asking me anything.
+
+ATTACHED:
+- IMAGE 1: the APPROVED idle sheet of another character (Pixel). It is the
+  TEMPLATE: copy its layout (6 columns x 2 rows), the pose order, the
+  facing direction of every pose, the wooden cafe chairs (same chair, same
+  angle, same chair-to-body size), the sprite scale and the warm lighting
+  EXACTLY. Only the character, her gestures, expressions and props change.
+  Do NOT copy anything of Pixel's look (no ice-blue wolf cut, no glasses,
+  no yellow cardigan, no jeans).
+  In chair_front_* the chair seat faces the LOWER-LEFT toward the viewer;
+  in chair_back_* the chair is seen from behind, seat facing the
+  UPPER-RIGHT toward the table, backrest toward the viewer.
+- IMAGES 2-3: EVE, approved, STANDING at her merge station. Image 2 from
+  behind, image 3 turning her head so her face shows. Use them ONLY for her
+  look. At work she always stands, but on her break she SITS like everyone
+  else (rows 1-2 below) - draw her seated exactly as the poses say. Keep
+  her EXACTLY: shiny LAVENDER hair with an iridescent CYAN sheen in TWO
+  round buns high on the head with long soft tails falling from each bun
+  down her back, a few cyan hair pins; a small holographic earpiece on one
+  ear; bright cyan eyes, confident smile; a cropped WHITE tech blazer with
+  violet and cyan panel lines and the "merge" symbol on the back (two
+  branch lines joining into one arrow), over a violet top; a pleated
+  cyan-to-violet gradient skirt; white knee boots with cyan light strips.
+  Same chibi proportions (big head), same thick dark outline, same colours.
+  She is the brightest star of the studio - confident, warm, decisive, a
+  bit of a "boss" even on her break: open posture, legs crossed, big
+  bright smile.
+
+HER ACCESSORIES ON BREAK (instead of Pixel's): a TALL iced coffee in a
+clear cup with a cyan straw (sit_drink, chair_*_drink, stand_drink), her
+slim white tablet (sit_phone, chair_front_talk), a pair of white-framed
+sunglasses (pushed up on her head in sit_doze), a sleek espresso
+portafilter and a small white cup (stand_brew).
+
+THE 12 POSES (same order and angles as IMAGE 1, confident and bright):
+row 1 — lounge, NO furniture drawn:
+  sit_relax  - FRONT view facing the LOWER-RIGHT, sitting "boss" style,
+               legs crossed, leaning back, both arms stretched up in a big
+               satisfied stretch, eyes closed, happy smile
+  sit_drink  - same facing, legs crossed, sipping the tall iced coffee
+               through the cyan straw, the other hand resting on her knee
+  sit_phone  - same facing, legs crossed, holding the slim white tablet in
+               one hand and swiping it with the other, focused, slight smile
+               (no floating hologram)
+  sit_laugh  - same facing, a big bright laugh, head thrown slightly back,
+               one hand on her chest, eyes closed in happy arcs
+  sit_doze   - same facing, dozing off leaning back, arms folded, the white
+               sunglasses pushed up on top of her head between the buns,
+               mouth slightly open, relaxed (the game adds "Zzz")
+  sit_back   - BACK view facing the UPPER-LEFT, her two buns with the long
+               tails and the merge symbol on the blazer toward the viewer,
+               sitting with one arm resting along an (undrawn) backrest
+row 2 — cafe chair (chair INCLUDED, copy IMAGE 1) and standing:
+  chair_front_drink - FRONT chair, facing the LOWER-LEFT, legs crossed,
+               sipping the iced coffee, relaxed and confident
+  chair_front_talk  - same chair and angle, legs crossed, showing her
+               tablet toward the viewer and pointing at it, explaining with
+               a confident smile
+  chair_back_drink  - BACK chair, facing the UPPER-RIGHT toward the table,
+               back to the viewer, iced coffee raised to her mouth, buns,
+               tails and merge symbol toward the viewer
+  chair_back_talk   - same chair and angle, head turned to the left in
+               profile, chatting warmly, one hand gesturing openly
+  stand_brew - STANDING, back to the viewer, facing the UPPER-LEFT,
+               locking the portafilter into an (undrawn) espresso machine,
+               the small white cup in her other hand
+  stand_drink- STANDING, FRONT view facing the LOWER-RIGHT, weight on one
+               leg, one hand on her hip, the other holding the tall iced
+               coffee, big confident smile
+
+OUTPUT: ONE image, landscape 1536x1024, the 12 sprites on a 6x2 grid.
+- every sprite at the same scale (Eve's head the same size in all 12, and
+  the same head size as Pixel's in IMAGE 1); her buns and hair tails must
+  stay fully inside the sprite cell
+- the exact pose name as a small label under each sprite, with AT LEAST
+  40 px of empty background between the lowest point of the sprite (feet or
+  chair legs) and the label; leave a clear empty band between the 2 rows
+- background: genuinely transparent. If you cannot, use a FLAT SOLID
+  MAGENTA #FF00FF background. NEVER draw a checkerboard, NEVER a grey or
+  black background
+- do NOT draw "Zzz", holograms, light rings, glow, steam, sparkles, sweat
+  drops or other effect symbols (the game adds its own effects)
+- NO table, sofa, counter, machine, office chair, desk, floor mat, floor,
+  cast shadow or glow halo (the wooden cafe chairs in chair_* poses are the
+  only furniture)
+- gaps between legs, chair legs, arms and body = background too
+- crisp pixel-art clusters, dark outlines, warm amber cafe lighting;
+  no blur, no 3D render; no text except the labels
+```
+
+Nhận sheet về: lưu **`public/assets/eve/idle_sheet.png`** → cắt → manifest theo cỡ ghế (ghế `chair_back_drink` ≈ 112 px như Pixel) → thêm `eve` vào `IDLERS` + nối chỗ đứng Merge với `goIdle`.
+
+⚠ Eve hay đi kèm hologram/ánh cyan → nếu GPT vẽ quầng sáng quanh người thì soi kỹ khi cắt nền (`clean-fringe.mjs`).
+
+### 24m. IDLE — THEO (planner nam, mẫu = sheet idle NOVA)
+
+Theo lúc làm việc **chỉ đứng** (ảnh 2–3 không ghế) → lúc nghỉ được ngồi. Tính cách planner điềm đạm, ngăn nắp, hài hước ngầm: viết kế hoạch kỳ nghỉ, chống cằm nghĩ, cười hiền, ngủ úp clipboard lên mặt. Đính kèm 3 ảnh theo đúng thứ tự:
+1. `public/assets/nova/idle_sheet.png`
+2. `public/assets/theo/plan/type_a.png`
+3. `public/assets/theo/plan/talk_left.png`
+
+```text
+Draw a 12-pose IDLE sprite sheet of THEO, the PLANNER (male) of my
+isometric pixel-art office game, relaxing on his break in the CAFE and the
+LOUNGE. Do everything in one go without asking me anything.
+
+ATTACHED:
+- IMAGE 1: the APPROVED idle sheet of another character (Nova). It is the
+  TEMPLATE: copy its layout (6 columns x 2 rows), the pose order, the
+  facing direction of every pose, the wooden cafe chairs (same chair, same
+  angle, same chair-to-body size), the sprite scale and the warm lighting
+  EXACTLY. Only the character, his gestures, expressions and props change.
+  Do NOT copy anything of Nova's look (no spiky cobalt hair, no navy-cyan
+  jacket, no energy drink).
+  In chair_front_* the chair seat faces the LOWER-LEFT toward the viewer;
+  in chair_back_* the chair is seen from behind, seat facing the
+  UPPER-RIGHT toward the table, backrest toward the viewer.
+- IMAGES 2-3: THEO, approved, STANDING at his planning table. Image 2 from
+  behind, image 3 turning his head so his face shows. Use them ONLY for his
+  look. At work he always stands, but on his break he SITS like everyone
+  else (rows 1-2 below) - draw him seated exactly as the poses say. Keep
+  him EXACTLY: neat soft CHESTNUT-BROWN hair with warm amber highlights,
+  short at the back, tidy side part, slightly wavy fringe; a yellow pencil
+  tucked behind his right ear; thin round tortoiseshell glasses, warm amber
+  eyes; a CREAM cable-knit sweater vest over a light-blue shirt with the
+  sleeves rolled to the elbows; the thin brown leather strap of a shoulder
+  satchel across his back with a few colourful sticky notes on it; dark
+  olive chinos; brown leather shoes. Same chibi proportions (big head),
+  same thick dark outline, same colours.
+  He is calm, thoughtful, tidy and quietly witty - even on a break he plans
+  something (his holiday). Relaxed but neat posture, gentle smile.
+
+HIS ACCESSORIES ON BREAK (instead of Nova's): the warm amber coffee mug
+(sit_drink, chair_*_drink), his clipboard with a holiday plan and sticky
+notes plus the yellow pencil (sit_relax, chair_front_talk, sit_doze), his
+phone showing a map app (sit_phone), a pour-over coffee dripper and a
+small kettle (stand_brew), a takeaway coffee cup with an amber sleeve
+(stand_drink).
+
+THE 12 POSES (same order and angles as IMAGE 1, calm and neat):
+row 1 — lounge, NO furniture drawn:
+  sit_relax  - FRONT view facing the LOWER-RIGHT, sitting with one ankle on
+               the other knee, the clipboard propped on his leg, writing a
+               holiday plan with the pencil, content smile
+  sit_drink  - same facing, holding the amber mug with both hands, sipping,
+               eyes closed, relaxed
+  sit_phone  - same facing, looking at a map on his phone, the other hand on
+               his chin, thinking
+  sit_laugh  - same facing, a warm gentle laugh, eyes closed, one hand
+               lightly patting his knee
+  sit_doze   - same facing, dozing off leaning back, the clipboard lying
+               face-down over his face, arms folded on his chest, pencil
+               still behind his ear (the game adds "Zzz")
+  sit_back   - BACK view facing the UPPER-LEFT, his chestnut hair, the
+               pencil behind his ear and the satchel strap with sticky notes
+               toward the viewer, sitting neatly, hands on lap
+row 2 — cafe chair (chair INCLUDED, copy IMAGE 1) and standing:
+  chair_front_drink - FRONT chair, facing the LOWER-LEFT, one ankle on the
+               other knee, sipping from the amber mug
+  chair_front_talk  - same chair and angle, showing his clipboard toward the
+               viewer and pointing at it with the pencil, explaining his
+               plan, gentle smile
+  chair_back_drink  - BACK chair, facing the UPPER-RIGHT toward the table,
+               back to the viewer, mug raised to his mouth, satchel strap
+               toward the viewer
+  chair_back_talk   - same chair and angle, head turned to the left in
+               profile, chatting calmly, chin resting on his hand
+  stand_brew - STANDING, back to the viewer, facing the UPPER-LEFT, pouring
+               hot water from the small kettle into the pour-over dripper at
+               an (undrawn) counter, careful and precise
+  stand_drink- STANDING, FRONT view facing the LOWER-RIGHT, holding the
+               takeaway coffee cup, the clipboard tucked under his other
+               arm, relaxed upright stance, friendly smile
+
+OUTPUT: ONE image, landscape 1536x1024, the 12 sprites on a 6x2 grid.
+- every sprite at the same scale (Theo's head the same size in all 12, and
+  the same head size as Nova's in IMAGE 1)
+- the exact pose name as a small label under each sprite, with AT LEAST
+  40 px of empty background between the lowest point of the sprite (feet or
+  chair legs) and the label; leave a clear empty band between the 2 rows
+- background: genuinely transparent. If you cannot, use a FLAT SOLID
+  MAGENTA #FF00FF background. NEVER draw a checkerboard, NEVER a grey or
+  black background
+- do NOT draw "Zzz", steam, sparkles, music notes, sweat drops or other
+  effect symbols (the game adds its own effects)
+- NO table, sofa, counter, machine, office chair, planning table, rug,
+  floor, cast shadow or glow halo (the wooden cafe chairs in chair_* poses
+  are the only furniture)
+- gaps between legs, chair legs, arms and body = background too
+- crisp pixel-art clusters, dark outlines, warm amber cafe lighting;
+  no blur, no 3D render; no text except the labels
+```
+
+Nhận sheet về: lưu **`public/assets/theo/idle_sheet.png`** → cắt → manifest theo cỡ ghế (ghế `chair_back_drink` ≈ 112 px như Pixel) → thêm `theo` vào `IDLERS` + nối chỗ đứng PLAN với `goIdle`.
+
+### 24n. IDLE — ORACLE (QA nữ, mẫu = sheet idle PIXEL)
+
+Oracle lúc làm việc **đứng, quay mặt ra** → 2 ảnh tham chiếu đều thấy mặt, **không có ảnh nhìn từ sau** → prompt tả rõ phía sau (đuôi ngựa navy cao, lưng blazer có viền đỏ) cho các pose quay lưng. Tính cách QA tsundere: khoanh tay hờn dỗi, lườm điện thoại, cười gượng đỏ mặt, ngủ vẫn cầm bút đỏ. Đính kèm 3 ảnh theo đúng thứ tự:
+1. `public/assets/pixel/idle_sheet.png`
+2. `public/assets/oracle/plan/check_a.png`
+3. `public/assets/oracle/plan/talk.png`
+
+```text
+Draw a 12-pose IDLE sprite sheet of ORACLE, the strict QA inspector (girl)
+of my isometric pixel-art office game, relaxing on her break in the CAFE
+and the LOUNGE. Do everything in one go without asking me anything.
+
+ATTACHED:
+- IMAGE 1: the APPROVED idle sheet of another character (Pixel). It is the
+  TEMPLATE: copy its layout (6 columns x 2 rows), the pose order, the
+  facing direction of every pose, the wooden cafe chairs (same chair, same
+  angle, same chair-to-body size), the sprite scale and the warm lighting
+  EXACTLY. Only the character, her gestures, expressions and props change.
+  Do NOT copy anything of Pixel's look (no ice-blue wolf cut, no round
+  glasses, no yellow cardigan, no jeans).
+  In chair_front_* the chair seat faces the LOWER-LEFT toward the viewer;
+  in chair_back_* the chair is seen from behind, seat facing the
+  UPPER-RIGHT toward the table, backrest toward the viewer.
+- IMAGES 2-3: ORACLE, approved, STANDING at work, both seen from the FRONT.
+  Use them ONLY for her look. At work she always stands, but on her break
+  she SITS like everyone else (rows 1-2 below) - draw her seated exactly as
+  the poses say. Keep her EXACTLY: long sleek DEEP-NAVY hair in a tight
+  HIGH PONYTAIL, straight blunt fringe, one strand framing her face; sharp
+  rectangular RED-frame glasses, cool icy-blue eyes; a tailored NAVY
+  cropped blazer with red piping and a red check-mark badge on the chest,
+  over a crisp white shirt with a thin red ribbon tie; a navy high-waist
+  pleated skirt; black tights; glossy black ankle boots; a lanyard ID card
+  "QA". Same chibi proportions (big head), same thick dark outline, same
+  colours.
+  FROM BEHIND (sit_back, chair_back_*, stand_brew - not shown in the
+  references): the long navy high ponytail falls down the middle of her
+  back, the navy blazer back has red piping along the seams and hem, the
+  lanyard cord shows at her neck. No other colours.
+  She is strict and sharp but secretly caring - a funny TSUNDERE. On her
+  break she still acts tough: arms crossed, pouting, glaring, and blushing
+  when she smiles.
+
+HER ACCESSORIES ON BREAK (instead of Pixel's): a black coffee mug with a
+red check mark (sit_drink, chair_*_drink), her RED pen - she never lets go
+of it (sit_doze, chair_front_talk), her phone in a navy case (sit_phone), a
+small black coffee press (stand_brew), a black takeaway coffee cup
+(stand_drink).
+
+THE 12 POSES (same order and angles as IMAGE 1, tsundere attitude):
+row 1 — lounge, NO furniture drawn:
+  sit_relax  - FRONT view facing the LOWER-RIGHT, sitting with legs crossed,
+               arms crossed, cheeks puffed in a pout, looking away to the
+               side ("I'm NOT relaxing")
+  sit_drink  - same facing, sipping the black coffee from the mug, eyes
+               closed, one tiny satisfied smile she tries to hide
+  sit_phone  - same facing, glaring at her phone through her glasses, eyes
+               narrowed, mouth a flat line, typing a strict reply
+  sit_laugh  - same facing, an awkward forced laugh, a hand half covering
+               her mouth, blushing red cheeks, eyes looking away
+  sit_doze   - same facing, dozing off sitting up, arms still crossed, head
+               nodding forward, glasses slipped down, the RED PEN still
+               gripped in her hand (the game adds "Zzz")
+  sit_back   - BACK view facing the UPPER-LEFT, the long navy ponytail and
+               the red-piped navy blazer back toward the viewer, sitting
+               upright, arms crossed
+row 2 — cafe chair (chair INCLUDED, copy IMAGE 1) and standing:
+  chair_front_drink - FRONT chair, facing the LOWER-LEFT, legs crossed,
+               sipping from the black coffee mug, eyes watching the viewer
+               suspiciously over the rim
+  chair_front_talk  - same chair and angle, pointing the red pen forward,
+               lecturing someone, one hand on her hip, slight frown
+  chair_back_drink  - BACK chair, facing the UPPER-RIGHT toward the table,
+               back to the viewer, mug raised to her mouth, ponytail down
+               her back
+  chair_back_talk   - same chair and angle, head turned to the left in
+               profile, chatting, nose slightly in the air, a small huff
+  stand_brew - STANDING, back to the viewer, facing the UPPER-LEFT, pressing
+               the plunger of the small coffee press at an (undrawn)
+               counter, ponytail toward the viewer
+  stand_drink- STANDING, FRONT view facing the LOWER-RIGHT, one arm crossed
+               under the other that holds the black takeaway cup, weight on
+               one leg, a cool "hmph" expression
+
+OUTPUT: ONE image, landscape 1536x1024, the 12 sprites on a 6x2 grid.
+- every sprite at the same scale (Oracle's head the same size in all 12,
+  and the same head size as Pixel's in IMAGE 1); her ponytail must stay
+  fully inside the sprite cell
+- the exact pose name as a small label under each sprite, with AT LEAST
+  40 px of empty background between the lowest point of the sprite (feet or
+  chair legs) and the label; leave a clear empty band between the 2 rows
+- background: genuinely transparent. If you cannot, use a FLAT SOLID
+  MAGENTA #FF00FF background. NEVER draw a checkerboard, NEVER a grey or
+  black background
+- do NOT draw "Zzz", anger vein marks, steam, sparkles, sweat drops or
+  other effect symbols (the game adds its own effects)
+- NO table, sofa, counter, machine, office chair, clipboard stand, rug,
+  floor, cast shadow or glow halo (the wooden cafe chairs in chair_* poses
+  are the only furniture)
+- gaps between legs, chair legs, arms and body = background too
+- crisp pixel-art clusters, dark outlines, warm amber cafe lighting;
+  no blur, no 3D render; no text except the labels and "QA" on her card
+```
+
+Nhận sheet về: lưu **`public/assets/oracle/idle_sheet.png`** → cắt → manifest theo cỡ ghế (ghế `chair_back_drink` ≈ 112 px như Pixel) → thêm `oracle` vào `IDLERS` + nối chỗ đứng Oracle ở PLAN với `goIdle`.
+
+⚠ Không có ảnh nhìn từ sau → soi kỹ 4 pose quay lưng (`sit_back`, `chair_back_*`, `stand_brew`): đuôi ngựa navy, không lẫn tóc/màu nhân vật khác.
+
+### 24o. IDLE — SHERLOCK (thám tử bug nam, mẫu = sheet idle NOVA)
+
+Nhân vật cuối. Sherlock lúc làm việc **đứng, quay mặt ra** → 2 ảnh tham chiếu đều thấy mặt, không có ảnh từ sau → prompt tả rõ phía sau (mũ deerstalker, áo trench charcoal dài, vạch cam ở tay áo). Tính cách thám tử: soi kính lúp vào cốc, chống cằm suy luận, cười "AHA", ngủ mũ deerstalker che mặt. Đính kèm 3 ảnh theo đúng thứ tự (`talk.png` là bản đã gen lại ở 23b — không lẫn tóc Oracle):
+1. `public/assets/nova/idle_sheet.png`
+2. `public/assets/sherlock/review/log_a.png`
+3. `public/assets/sherlock/review/talk.png`
+
+```text
+Draw a 12-pose IDLE sprite sheet of SHERLOCK, the bug detective / error
+analyst (male) of my isometric pixel-art office game, relaxing on his
+break in the CAFE and the LOUNGE. Do everything in one go without asking
+me anything.
+
+ATTACHED:
+- IMAGE 1: the APPROVED idle sheet of another character (Nova). It is the
+  TEMPLATE: copy its layout (6 columns x 2 rows), the pose order, the
+  facing direction of every pose, the wooden cafe chairs (same chair, same
+  angle, same chair-to-body size), the sprite scale and the warm lighting
+  EXACTLY. Only the character, his gestures, expressions and props change.
+  Do NOT copy anything of Nova's look (no spiky cobalt hair, no navy-cyan
+  jacket, no energy drink).
+  In chair_front_* the chair seat faces the LOWER-LEFT toward the viewer;
+  in chair_back_* the chair is seen from behind, seat facing the
+  UPPER-RIGHT toward the table, backrest toward the viewer.
+- IMAGES 2-3: SHERLOCK, approved, STANDING at work, both seen from the
+  FRONT. Use them ONLY for his look. At work he always stands, but on his
+  break he SITS like everyone else (rows 1-2 below) - draw him seated
+  exactly as the poses say. Keep him EXACTLY: spiky tousled RED-ORANGE
+  hair, one strand over his forehead; sharp amber eyes, often half-lidded;
+  a small charcoal tweed DEERSTALKER cap tilted on his head; a long
+  CHARCOAL trench coat to the knees with burnt-orange lining and a
+  red-orange warning-stripe band on one sleeve, collar up, over a black
+  turtleneck; dark grey trousers; brown leather boots; a brass MAGNIFYING
+  GLASS hanging from his belt. Same chibi proportions (big head), same
+  thick dark outline, same colours. When he sits, the long coat drapes
+  over the seat and his knees.
+  FROM BEHIND (sit_back, chair_back_*, stand_brew - not shown in the
+  references): the deerstalker cap with its back flap, red-orange spiky
+  hair under it, the turned-up coat collar, the long charcoal coat with a
+  centre vent and the orange warning band on one sleeve.
+  He is calm, brooding, sharp-eyed and a little dramatic - even on a break
+  he keeps investigating everything around him.
+
+HIS ACCESSORIES ON BREAK (instead of Nova's): a white paper coffee cup
+with an orange sleeve (sit_drink, chair_*_drink, stand_drink), the brass
+magnifying glass (sit_relax, chair_front_talk), his phone in a plain
+black case reading a mystery novel (sit_phone), a small pour-over kettle
+(stand_brew).
+
+THE 12 POSES (same order and angles as IMAGE 1, brooding detective):
+row 1 — lounge, NO furniture drawn:
+  sit_relax  - FRONT view facing the LOWER-RIGHT, sitting with legs
+               crossed, peering through the magnifying glass at the paper
+               coffee cup held in his other hand, one big magnified amber
+               eye visible through the lens
+  sit_drink  - same facing, sipping from the paper coffee cup, eyes
+               half-closed, the other hand in his coat pocket
+  sit_phone  - same facing, reading a mystery novel on his phone, one hand
+               holding his chin, eyes narrowed in deduction
+  sit_laugh  - same facing, an "AHA!" laugh: index finger raised high,
+               eyes wide, a big triumphant grin
+  sit_doze   - same facing, dozing off leaning back, arms folded, the
+               deerstalker cap pulled down over his face, legs stretched
+               and crossed at the ankles (the game adds "Zzz")
+  sit_back   - BACK view facing the UPPER-LEFT, the deerstalker, the
+               turned-up collar and the long charcoal coat toward the
+               viewer, sitting still, one arm resting on his knee
+row 2 — cafe chair (chair INCLUDED, copy IMAGE 1) and standing:
+  chair_front_drink - FRONT chair, facing the LOWER-LEFT, legs crossed,
+               coat draped, sipping from the paper coffee cup, eyes
+               scanning around suspiciously
+  chair_front_talk  - same chair and angle, leaning forward, holding up
+               the magnifying glass like a pointer, explaining a clue with
+               a confident smirk
+  chair_back_drink  - BACK chair, facing the UPPER-RIGHT toward the table,
+               back to the viewer, cup raised to his mouth, cap and coat
+               collar toward the viewer
+  chair_back_talk   - same chair and angle, head turned to the left in
+               profile, chatting, chin resting on steepled fingers
+  stand_brew - STANDING, back to the viewer, facing the UPPER-LEFT, pouring
+               from the small kettle at an (undrawn) counter, studying the
+               drip closely, long coat toward the viewer
+  stand_drink- STANDING, FRONT view facing the LOWER-RIGHT, one hand in his
+               coat pocket, the other holding the paper coffee cup, coat
+               collar up, a mysterious half smile
+
+OUTPUT: ONE image, landscape 1536x1024, the 12 sprites on a 6x2 grid.
+- every sprite at the same scale (Sherlock's head the same size in all 12,
+  and the same head size as Nova's in IMAGE 1); his cap and coat must stay
+  fully inside the sprite cell
+- the exact pose name as a small label under each sprite, with AT LEAST
+  40 px of empty background between the lowest point of the sprite (feet or
+  chair legs) and the label; leave a clear empty band between the 2 rows
+- background: genuinely transparent. If you cannot, use a FLAT SOLID
+  MAGENTA #FF00FF background. NEVER draw a checkerboard, NEVER a grey or
+  black background
+- do NOT draw "Zzz", "AHA", exclamation marks, lightbulbs, steam,
+  sparkles, sweat drops or other effect symbols (the game adds its own
+  effects)
+- NO table, sofa, counter, machine, office chair, floor, cast shadow or
+  glow halo (the wooden cafe chairs in chair_* poses are the only furniture)
+- gaps between legs, chair legs, arms and body = background too
+- crisp pixel-art clusters, dark outlines, warm amber cafe lighting;
+  no blur, no 3D render; no text except the labels
+```
+
+Nhận sheet về: lưu **`public/assets/sherlock/idle_sheet.png`** → cắt → manifest theo cỡ ghế (ghế `chair_back_drink` ≈ 112 px như Pixel) → thêm `sherlock` vào `IDLERS` + nối chỗ đứng Sherlock ở REVIEW với `goIdle`.
+
+⚠ Áo trench charcoal gần đen → nếu GPT trả nền đen/xám thì bắt gen lại nền magenta (tách nền sẽ ăn vào áo). Soi kỹ 4 pose quay lưng vì không có ảnh tham chiếu từ sau.
+---
+
+## 25. GÓC RIÊNG — Eve / Theo / Oracle: ghế đọc sách + tìm đồ trên kệ (sheet 4 pose)
+
+Chốt 22/10: khu kệ sách sau dãy CODING có 2 ghế đọc sách (L1, L2 — ghế BAKE vào sprite vì nền không có ghế), góc kệ cao cạnh cửa MERGE là chỗ đứng tìm đồ (S1). Chỉ Eve, Theo, Oracle dùng; khi khu nghỉ kín chỗ họ nhường ghế chung và về đây. Mỗi người 1 sheet **2×2**: `read_a`, `read_b`, `search_a`, `search_b`. Gen lần lượt từng người (thay tên + đoạn ngoại hình + đồ đọc).
+
+Đính kèm 3 ảnh: (1) sheet idle đã duyệt của nhân vật đó (`public/assets/<ten>/idle_sheet.png`), (2) `public/assets/environment/library_reference.png`, (3) `public/assets/environment/shelf_reference.png`.
+
+Đồ đọc riêng: **Eve** tablet hologram + sách bìa phát sáng · **Theo** sổ tay da + bản đồ gấp · **Oracle** tập tài liệu kẹp, bút đỏ.
+
+```text
+Draw a 4-pose sprite sheet (2 columns x 2 rows) of EVE, a character of my
+isometric pixel-art office game, in her private reading corner. Do everything
+in one go without asking me anything.
+
+ATTACHED:
+- IMAGE 1: her APPROVED idle sheet. Keep her EXACTLY the same (face, hair,
+  outfit, colours, chibi proportions, outline thickness) and the SAME sprite
+  scale as in that sheet.
+- IMAGE 2: the bookshelf nook of the office where she reads (no chair there:
+  the armchair is drawn in the sprite).
+- IMAGE 3: the tall bookshelf by the door where she looks for things.
+
+THE 4 POSES:
+row 1 — sitting in a cosy reading ARMCHAIR (chair INCLUDED in the sprite):
+  a small dark-brown leather armchair with rounded arms and short wooden
+  legs, seen FRONT 3/4: the seat faces the LOWER-RIGHT toward the viewer.
+  The armchair is about as tall as the wooden cafe chairs in IMAGE 1.
+  read_a - leaning back in the armchair, one leg crossed, reading a glowing
+           book/tablet held in both hands, focused small smile
+  read_b - same chair and angle, turning a page, eyes following the text
+row 2 — STANDING at a tall bookshelf (shelf NOT drawn), BACK to the viewer,
+  facing the UPPER-LEFT, same angle as stand_brew in IMAGE 1:
+  search_a - reaching up with one hand to pull a book from a high shelf
+  search_b - holding an open book close, looking into it, other hand on
+             the (undrawn) shelf
+
+OUTPUT: ONE image, 2x2 grid, transparent background (or FLAT SOLID MAGENTA
+#FF00FF if transparency is impossible; NEVER a checkerboard, grey or black
+background). The exact pose name as a small label under each sprite, with
+AT LEAST 40 px of empty space between the sprite and its label, and a clear
+empty band between the rows and columns - sprites must not touch each other.
+NO shelf, table, floor, shadow or glow halo (the armchair is the only
+furniture). Do not draw effect symbols (sparkles, notes, dust).
+```
+
+Nhận sheet về: lưu `public/assets/<ten>/library_sheet.png` → em cắt vào `public/assets/<ten>/idle/` (thêm 4 pose vào bộ idle sẵn có, manifest cùng scale) → góc riêng tự bật cho người đó. Toạ độ tạm: L1 (520,246), L2 (580,264), S1 (1030,372) — canh lại khi có ảnh thật.
+
+---
+
+## 26. EVE ngủ trưa ở góc MERGE — quấn chăn, lăn qua lăn lại (sheet 3 pose)
+
+Chốt 22/10: chỗ M1 (1235,540) trên thảm phát sáng trước bàn MERGE, chỉ Eve. 3 pose ngủ, game tự đổi qua lại (lăn người, nảy nhẹ, Zzz tím, bong bóng mơ). Chăn + gối VẼ TRONG sprite.
+
+Đính kèm 2 ảnh: (1) `public/assets/eve/idle_sheet.png`, (2) `public/assets/environment/merge_nap_reference.png`.
+
+```text
+Draw a 3-pose sprite sheet (3 columns x 1 row) of EVE, a character of my
+isometric pixel-art office game, taking the cutest possible nap on the floor
+of her MERGE corner. Do everything in one go without asking me anything.
+
+ATTACHED:
+- IMAGE 1: her APPROVED idle sheet. Keep her EXACTLY the same (face, short
+  wavy indigo-to-cyan hair, glowing triangle hair clip, holographic jacket,
+  colours, chibi proportions, outline thickness) and the SAME scale: her head
+  the same size as in that sheet.
+- IMAGE 2: the MERGE corner: she sleeps on the glowing blue patterned carpet
+  in front of the desk (the carpet is NOT drawn in the sprite).
+
+She lies on the floor wrapped like a burrito in a fluffy LAVENDER blanket
+with small cyan star prints, head on a round white pillow, her little round
+robot pouch tucked beside her. Isometric view from the same camera as
+IMAGE 1: her body lies along the floor diagonal, head toward the UPPER-LEFT,
+feet toward the LOWER-RIGHT. Blanket and pillow are INCLUDED in every sprite.
+Super cute: rosy cheeks, tiny peaceful smile, a strand of hair sticking up.
+
+THE 3 POSES (same spot, same pillow position, she rolls between them):
+  sleep_a - curled on her side facing the viewer, blanket pulled up to her
+            chin, hugging a corner of the blanket, eyes closed, smiling
+  sleep_b - rolled onto her back, arms flung out above her head, blanket
+            half kicked off showing her boots, mouth slightly open
+  sleep_c - rolled onto her other side, back half to the viewer, blanket
+            wrapped tight, hair messy over the pillow, one foot peeking out
+
+OUTPUT: ONE image, 3 sprites in one row, every sprite the same scale,
+transparent background (or FLAT SOLID MAGENTA #FF00FF if transparency is
+impossible; NEVER a checkerboard, grey or black background). The exact pose
+name as a small label under each sprite, with AT LEAST 40 px of empty space
+between the sprite and its label; sprites must not touch each other. NO
+carpet, floor, desk, shadow or glow halo (blanket and pillow are the only
+props). Do not draw "Zzz", hearts, bubbles or other effect symbols - the
+game adds them.
+```
+
+Nhận sheet về: lưu `public/assets/eve/nap_sheet.png` → em cắt, thêm `sleep_a/b/c` vào `eve/idle/manifest.json` (resize về cỡ bộ idle), canh anchor theo giữa chăn trên thảm → chỗ M1 tự bật.
+
+---
+
+## 27. EVE đi dạo nhảy chân sáo + vồ ếch (sheet 7 pose)
+
+Chốt 22/10: Eve (chỉ Eve) nghỉ bằng cách nhảy chân sáo dọc lối đi trước dãy CODING dưới, dừng ngó nghiêng, thỉnh thoảng vồ ếch ngã sấp mặt → nằm ngẩng đầu ngó quanh → đứng dậy đi tiếp. Game tự di chuyển + nảy; sprite chỉ cần dáng. Quay trái = lật ngang ảnh.
+
+Đính kèm 2 ảnh: (1) `public/assets/eve/idle_sheet.png`, (2) `public/assets/environment/eve_walk_reference.png`.
+
+```text
+Draw a 7-pose sprite sheet (4 columns x 2 rows, last cell empty) of EVE, a
+character of my isometric pixel-art office game, skipping happily around the
+office on her break. Do everything in one go without asking me anything.
+
+ATTACHED:
+- IMAGE 1: her APPROVED idle sheet. Keep her EXACTLY the same (face, short
+  wavy indigo-to-cyan hair, glowing triangle hair clip, holographic
+  off-shoulder jacket, black top, silver shorts, thigh straps, white-silver
+  boots, round robot pouch; colours, chibi proportions, outline thickness)
+  and the SAME scale: her head the same size as in that sheet.
+- IMAGE 2: the office floor where she skips (NOT drawn in the sprite).
+
+Same isometric camera as IMAGE 1. In every pose she travels toward the
+LOWER-RIGHT (front 3/4 view, face visible); the game mirrors the sprite for
+the other direction. Playful, bubbly, a bit clumsy.
+
+THE 7 POSES:
+row 1:
+  walk_a - mid-skip, one knee lifted high, arms swinging, jacket and hair
+           bouncing up, big happy smile, eyes closed in delight
+  walk_b - the other skip step: other knee up, arms swapped, both feet
+           almost off the ground
+  look   - stopped, standing on one foot, hand shading her eyes, curiously
+           looking around, little "?" expression (no symbol drawn)
+  trip   - tripping: falling forward through the air, arms flung out in
+           front, legs kicked up behind, surprised "eek" face
+row 2:
+  down   - landed flat on her face on the floor ("frog sprawl"): lying face
+           down, arms and legs spread like a starfish, boots up, robot pouch
+           tumbled beside her
+  peek   - still lying on her belly, propped on her elbows, lifting her head
+           and peeking sideways with teary embarrassed eyes, red nose,
+           checking if anyone saw
+  up     - getting up: kneeling on one knee, brushing off her jacket,
+           sheepish grin, a little tongue out
+
+OUTPUT: ONE image, every sprite at the same scale, transparent background
+(or FLAT SOLID MAGENTA #FF00FF if transparency is impossible; NEVER a
+checkerboard, grey or black background). The exact pose name as a small
+label under each sprite, with AT LEAST 40 px of empty space between the
+sprite and its label; a clear empty band between rows and columns -
+sprites must not touch each other. NO floor, shadow, dust, stars, motion
+lines, sweat drops or other effect symbols - the game adds them.
+```
+
+Nhận sheet về: lưu `public/assets/eve/walk_sheet.png` → em cắt, resize về cỡ bộ idle, thêm 7 pose vào `eve/idle/manifest.json` (anchor giữa 2 chân; `down/peek` giữa thân) → chỗ W1 tự bật.
+
 ---
 
 ## Negative chung (thêm vào cuối nếu kết quả hay lỗi)
