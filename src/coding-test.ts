@@ -875,7 +875,7 @@ const idleBar=document.getElementById('force-idle')!;
 const idleButtons:[string,()=>void][]=[
   ['Pixel làm việc',()=>{pixelIdle.stop();pixelSeat.setOccupied(true,pixelCast)}],
   ['Pixel idle',()=>{pixelSeat.setOccupied(false);if(!pixelIdle.active)pixelIdle.start(performance.now())}],
-  ['Đổi chỗ',()=>{for(const a of idleWorld.agents)a.relocate(performance.now())}],
+  ['Bước tiếp (quầy → bàn → sofa)',()=>{for(const a of idleWorld.agents)a.advance(performance.now())}],
   ['+ Clone idle',()=>{const c=new IdleAgent(idleWorld,pixelIdleCast);if(c.start(performance.now()))idleClones.push(c);else c.stop()}],
   ['Xoá clone',()=>{for(const c of idleClones)c.stop();idleClones.length=0}],
 ];
