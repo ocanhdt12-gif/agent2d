@@ -24,8 +24,8 @@
         253,
         427
       ],
-      "anchorX": 155,
-      "anchorY": 427
+      "anchorX": 156,
+      "anchorY": 428
     },
     "chair_front_drink": {
       "file": "chair_front_drink.png",
@@ -50,7 +50,7 @@
         276,
         429
       ],
-      "anchorX": 121,
+      "anchorX": 165,
       "anchorY": 429
     },
     "sit_back": {

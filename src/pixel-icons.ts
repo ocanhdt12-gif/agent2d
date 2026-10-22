@@ -185,6 +185,18 @@ const MAPS:Record<string,string[]>={
     '.KKKKKWKKK.',
     '.....KWK...',
     '......KK...'],
+  music:[
+    '....KK...',
+    '....KVK..',
+    '....KVVK.',
+    '....KVKVK',
+    '....KVK.K',
+    '....KVK..',
+    '..KKKVK..',
+    '.KVVVVK..',
+    'KVVWVVK..',
+    'KVVVVK...',
+    '.KKKK....'],
   idea:[
     '...KKKKK...',
     '..KYYYYYK..',

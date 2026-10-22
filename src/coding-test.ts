@@ -38,6 +38,8 @@ const FIRE_SCALE=0.1071*1.2;
 let forced:Action|null=null;
 // Called when a seat gets a character: its idle sprite (if any) must leave. Wired once the idle world exists.
 let onSeated:(name:string)=>void=()=>{};
+// Clicking a working character that has an idle sheet sends it on a break (true = handled). Wired below.
+let goIdle:(seat:{setOccupied:(v:boolean)=>void;cast:{name:string}})=>boolean=()=>false;
 // Is this character already shown somewhere other than `except` (work seats + real idle agents)?
 // Filled once all seats and the idle world exist (they are created further down).
 let stageSeats:{occupied:boolean;cast:{name:string}}[]=[];
@@ -118,7 +120,9 @@ const reviewCasts:Cast[]=await Promise.all(REVIEWERS.map(name=>loadCast(name,'re
 const eveCast=await loadCast('eve','merge');
 const theoCast=await loadCast('theo','plan');
 const pixelCast=await loadCast('pixel','relax');
-const pixelIdleCast=await loadCast('pixel','idle');
+// Characters that already have an idle sheet (prompt mục 24 / 24a); one at a time, Nova first among the rest.
+const IDLERS=['pixel','nova','orion','lyra','vega','atlas','comet','sage'];
+const idleCasts=await Promise.all(IDLERS.map(name=>loadCast(name,'idle')));
 const oracleCast=await loadCast('oracle','plan');
 const sherlockCast=await loadCast('sherlock','review');
 const office=await load('/assets/environment/office_original.png');
@@ -180,6 +184,7 @@ class Seat{
     this.root.eventMode='static';this.root.cursor='pointer';
     this.root.hitArea={contains:(px:number,py:number)=>px>-45&&px<45&&py>-150&&py<5};
     this.root.on('pointertap',()=>{
+      if(this.occupied&&goIdle(this))return;
       // cycle empty -> each builder not already on stage elsewhere -> empty
       let next=this.occupied?casts.indexOf(this.cast)+1:0;
       while(next<casts.length&&onStage(casts[next].name,this))next++;
@@ -459,6 +464,7 @@ class ReviewSeat{
     this.root.eventMode='static';this.root.cursor='pointer';
     this.root.hitArea={contains:(px:number,py:number)=>px>-45&&px<45&&py>-st.head&&py<5};
     this.root.on('pointertap',()=>{
+      if(this.occupied&&goIdle(this))return;
       let next=this.occupied?st.pool.indexOf(this.cast)+1:0;
       while(next<st.pool.length&&onStage(st.pool[next].name,this))next++;
       this.setOccupied(next<st.pool.length,st.pool[next]);
@@ -856,8 +862,8 @@ oracleSeat.setOccupied(true,oracleCast);
 const sherlockSeat=new ReviewSeat(0,SHERLOCK_STATION);
 sherlockSeat.setOccupied(true,sherlockCast);
 const reviewZone=[...reviewSeats,eveSeat,theoSeat,pixelSeat,oracleSeat,sherlockSeat];
-// Idle test: Pixel can leave her sofa desk and idle in the Cafe/Lounge; extra clones test that idle agents
-// never take the same or an overlapping slot. Her work seat blocks the nearby sofa slot while she works.
+// Idle test: every character in IDLERS. Click one at work → it takes a break in the Cafe/Lounge; click it
+// while idling → back to the seat it left. Pixel's sofa desk blocks the nearby sofa slot while she works.
 const idleWorld=new IdleWorld(layer);
 idleWorld.blockers.push({id:'P',x:RELAX_STATION.x,y:RELAX_STATION.y,active:()=>pixelSeat.occupied});
 // One character, one sprite: a name counts as on stage when it occupies any work seat or idles for real.
@@ -865,13 +871,41 @@ idleWorld.isWorking=name=>[...seats,...reviewZone].some(s=>s.occupied&&s.cast.na
 onSeated=name=>idleWorld.leave(name);
 idleWorldRef=idleWorld;
 stageSeats=[...seats,...reviewZone];
-const pixelIdle=new IdleAgent(idleWorld,pixelIdleCast);
-const idleClones:IdleAgent[]=[];
+type HomeSeat={occupied:boolean;cast:Cast;setOccupied:(v:boolean,cast?:Cast)=>void};
+const idlers=new Map<string,{agent:IdleAgent;home:HomeSeat|null;cast:Cast|null}>();
+for(const cast of idleCasts){
+  const entry={agent:new IdleAgent(idleWorld,cast),home:null as HomeSeat|null,cast:null as Cast|null};
+  idlers.set(cast.name,entry);
+  entry.agent.root.eventMode='static';entry.agent.root.cursor='pointer';
+  entry.agent.root.on('pointertap',()=>backToWork(cast.name));
+}
+goIdle=seat=>{
+  const entry=idlers.get(seat.cast.name);
+  if(!entry)return false;
+  entry.home=seat as HomeSeat;entry.cast=(seat as HomeSeat).cast;
+  seat.setOccupied(false);
+  entry.agent.start(performance.now());
+  return true;
+};
+// Back to the seat it left; if someone took that seat meanwhile, it keeps idling.
+function backToWork(name:string){
+  const entry=idlers.get(name);
+  if(!entry?.home||entry.home.occupied)return;
+  entry.agent.stop();entry.home.setOccupied(true,entry.cast!);
+}
+const pixelIdle=idlers.get('pixel')!.agent;
+idlers.get('pixel')!.home=pixelSeat;idlers.get('pixel')!.cast=pixelCast;
+function togglePixel(){
+  if(pixelSeat.occupied)goIdle(pixelSeat);
+  else backToWork('pixel');
+}
+pixelSeat.root.removeAllListeners('pointertap');
+pixelSeat.root.on('pointertap',togglePixel);
 // Debug hook for driving the test page from devtools (step frames while the tab is hidden).
 // Everything is loaded and placed: fade the loading screen out.
 const loadingScreen=document.getElementById('loading');
 if(loadingScreen){loadingScreen.classList.add('done');setTimeout(()=>loadingScreen.remove(),600)}
-Object.assign(window,{__test:{idleWorld,pixelIdle,idleClones,app,seats,reviewSeats,eveSeat,theoSeat,pixelSeat,oracleSeat,sherlockSeat}});
+Object.assign(window,{__test:{idleWorld,idlers,pixelIdle,app,seats,reviewSeats,eveSeat,theoSeat,pixelSeat,oracleSeat,sherlockSeat}});
 
 const forceBar=document.getElementById('force')!;
 const buttons:[string,Action|null][]=[['Random',null],['Gõ thường','type'],['Gõ nhanh','type_fast'],['Siêu tốc 🔥','type_super'],['Nói trái','talk_left'],['Nói phải','talk_right'],['Xoay trái','swivel_left'],['Xoay phải','swivel_right']];
@@ -891,11 +925,12 @@ for(const [label,action] of reviewButtons){
 
 const idleBar=document.getElementById('force-idle')!;
 const idleButtons:[string,()=>void][]=[
-  ['Pixel làm việc',()=>{pixelIdle.stop();pixelSeat.setOccupied(true,pixelCast)}],
-  ['Pixel idle',()=>{pixelSeat.setOccupied(false);if(!pixelIdle.active)pixelIdle.start(performance.now())}],
-  ['Bước tiếp (quầy → bàn → sofa)',()=>{for(const a of idleWorld.agents)a.advance(performance.now())}],
-  ['+ Clone idle (test)',()=>{const c=new IdleAgent(idleWorld,pixelIdleCast,true);if(c.start(performance.now()))idleClones.push(c);else c.stop()}],
-  ['Xoá clone',()=>{for(const c of idleClones)c.stop();idleClones.length=0}],
+  ['Pixel ↔',togglePixel],
+  // one toggle per builder / reviewer that has an idle sheet
+  ...IDLERS.filter(name=>name!=='pixel').map(name=>[`${name[0].toUpperCase()+name.slice(1)} ↔`,()=>{
+    const s=[...seats,...reviewSeats].find(s=>s.occupied&&s.cast.name===name);if(s)goIdle(s);else backToWork(name);
+  }] as [string,()=>void]),
+  ['Đổi chỗ ngẫu nhiên',()=>{for(const {agent} of idlers.values())agent.advance(performance.now())}],
 ];
 for(const [label,fn] of idleButtons){const b=document.createElement('button');b.textContent=label;b.onclick=fn;idleBar.appendChild(b)}
 
