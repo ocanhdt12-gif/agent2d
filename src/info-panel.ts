@@ -36,7 +36,7 @@ const CSS=`
 #char-card.show{animation:card-pop .18s ease-out}
 @keyframes card-pop{from{transform:translateY(6px) scale(.97)}to{transform:none}}
 #char-card .hd{display:flex;gap:10px;padding:10px;background:linear-gradient(180deg,color-mix(in srgb,var(--cc) 22%,#101a2e),#101a2e)}
-#char-card .av{width:64px;height:64px;flex:none;border:2px solid var(--cc);background:#0b1322 no-repeat 50% 8%/150% auto;
+#char-card .av{width:64px;height:64px;flex:none;border:2px solid var(--cc);background:#0b1322 no-repeat 50% 14%/135% auto;
   box-shadow:inset 0 0 0 2px #060b16}
 #char-card .nm{font-size:17px;font-weight:800;letter-spacing:.5px;color:#fff;text-shadow:2px 2px 0 #060b16}
 #char-card .rl{display:inline-block;margin-top:3px;padding:1px 7px;background:var(--cc);color:#06121f;font-weight:800;font-size:11px}
