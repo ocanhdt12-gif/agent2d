@@ -4,6 +4,8 @@ import {Application,Assets,Container,Graphics,Sprite,Text,Texture} from 'pixi.js
 import {buildIcons,iconSprite,isIcon,setIcon} from './pixel-icons';
 import {IdleAgent,IdleWorld} from './idle';
 import {LiveMapper,type LiveFile,type Cast as LiveCast} from './live-state';
+import {InfoPanel,PROFILES,type CharacterInfo} from './info-panel';
+const PROFILE_COLORS=Object.fromEntries(Object.entries(PROFILES).map(([k,v])=>[k,v.color]));
 
 type PoseInfo={file:string;width:number;height:number;bbox:number[];anchorX:number;anchorY:number};
 type Manifest={scale:number;poses:Record<string,PoseInfo>};
@@ -41,6 +43,8 @@ let forced:Action|null=null;
 let onSeated:(name:string)=>void=()=>{};
 // Clicking a working character that has an idle sheet sends it on a break (true = handled). Wired below.
 let goIdle:(seat:{setOccupied:(v:boolean)=>void;cast:{name:string}})=>boolean=()=>false;
+// Click on a character (at work or on a break) → its info card. Wired once the panel exists.
+let onCharacterTap:(name:string)=>void=()=>{};
 // Is this character already shown somewhere other than `except` (work seats + real idle agents)?
 // Filled once all seats and the idle world exist (they are created further down).
 let stageSeats:{occupied:boolean;cast:{name:string}}[]=[];
@@ -185,8 +189,8 @@ class Seat{
     this.root.eventMode='static';this.root.cursor='pointer';
     this.root.hitArea={contains:(px:number,py:number)=>px>-45&&px<45&&py>-150&&py<5};
     this.root.on('pointertap',()=>{
-      if(this.occupied&&goIdle(this))return;
-      // cycle empty -> each builder not already on stage elsewhere -> empty
+      if(this.occupied){onCharacterTap(this.cast.name);return}
+      // empty chair: cycle each builder not already on stage elsewhere -> empty
       let next=this.occupied?casts.indexOf(this.cast)+1:0;
       while(next<casts.length&&onStage(casts[next].name,this))next++;
       this.setOccupied(next<casts.length,casts[next]);
@@ -465,7 +469,7 @@ class ReviewSeat{
     this.root.eventMode='static';this.root.cursor='pointer';
     this.root.hitArea={contains:(px:number,py:number)=>px>-45&&px<45&&py>-st.head&&py<5};
     this.root.on('pointertap',()=>{
-      if(this.occupied&&goIdle(this))return;
+      if(this.occupied){onCharacterTap(this.cast.name);return}
       let next=this.occupied?st.pool.indexOf(this.cast)+1:0;
       while(next<st.pool.length&&onStage(st.pool[next].name,this))next++;
       this.setOccupied(next<st.pool.length,st.pool[next]);
@@ -878,7 +882,7 @@ for(const cast of idleCasts){
   const entry={agent:new IdleAgent(idleWorld,cast),home:null as HomeSeat|null,cast:null as Cast|null};
   idlers.set(cast.name,entry);
   entry.agent.root.eventMode='static';entry.agent.root.cursor='pointer';
-  entry.agent.root.on('pointertap',()=>backToWork(cast.name));
+  entry.agent.root.on('pointertap',()=>onCharacterTap(cast.name));
 }
 goIdle=seat=>{
   const entry=idlers.get(seat.cast.name);
@@ -916,8 +920,6 @@ function togglePixel(){
   if(pixelSeat.occupied)goIdle(pixelSeat);
   else backToWork('pixel');
 }
-pixelSeat.root.removeAllListeners('pointertap');
-pixelSeat.root.on('pointertap',togglePixel);
 // Debug hook for driving the test page from devtools (step frames while the tab is hidden).
 // Everything is loaded and placed: fade the loading screen out.
 const loadingScreen=document.getElementById('loading');
@@ -1012,6 +1014,55 @@ liveButton.onclick=()=>{
 };
 paintLive();idleBar.appendChild(liveButton);
 if(new URLSearchParams(location.search).has('live'))liveButton.click();
+
+// ── Character info card ────────────────────────────────────────────────────────────────────────────
+const WORK_TEXT:Record<string,string>={
+  type:'Đang gõ code',type_fast:'Gõ code thật nhanh',type_super:'Gõ siêu tốc 🔥',talk_left:'Trao đổi với đồng nghiệp',
+  talk_right:'Trao đổi với đồng nghiệp',swivel_left:'Xoay ghế nghĩ cách giải',swivel_right:'Xoay ghế nghĩ cách giải',
+  read:'Đọc code / tài liệu',bug_hunt:'Săn bug 🔍',merge_rush:'Merge Rush — gom code cả đội ⚡',idea_storm:'Idea Storm — lên roadmap 💡',
+  color_burst:'Color Burst — chốt bản thiết kế 🎨',roast:'Mắng dev vì sai spec 📢',root_cause:'Truy tìm root cause 🧵',
+  note:'Ghi chú',approve:'Duyệt xong ✓',sip_tea:'Nhâm nhi đồ uống',hair_tuck:'Nghỉ tay một chút',
+};
+const BREAK_TEXT:[RegExp,string][]=[[/brew/,'Pha cà phê ☕'],[/stand_drink/,'Uống cà phê'],[/chair_.*drink/,'Uống cà phê bên bàn'],
+  [/talk/,'Tán gẫu với đồng nghiệp'],[/sit_relax/,'Thư giãn trên sofa'],[/sit_drink/,'Uống cacao nóng'],[/phone/,'Lướt điện thoại'],
+  [/laugh/,'Cười đùa'],[/doze/,'Ngủ gật 💤'],[/sit_back/,'Ngắm cảnh'],[/read/,'Đọc sách'],[/search/,'Tìm sách trên kệ'],
+  [/sleep/,'Ngủ trưa 💤'],[/walk|look|peek|down|up/,'Đi dạo']];
+const ZONE_TEXT:Record<string,string>={cafe:'Cafe',lounge:'Lounge',library:'Góc riêng'};
+const stateSince=new Map<string,{key:string;at:number}>();
+function readInfo(name:string):CharacterInfo|null{
+  const seat=workSeatOf(name) as (Seat|ReviewSeat|undefined),entry=idlers.get(name);
+  const agents=liveCasts.get(name)?.agents??[];
+  let info:CharacterInfo|null=null;
+  if(seat){
+    const head=seat instanceof ReviewSeat?seat.st.head:150;
+    info={name,working:true,activity:WORK_TEXT[seat.action]??'Đang làm việc',place:'Chỗ làm việc',sinceMs:0,agents,live,x:seat.root.x,y:seat.root.y,head};
+  }else if(entry?.agent.active){
+    const a=entry.agent,pose=a.pose;
+    info={name,working:false,activity:BREAK_TEXT.find(([r])=>r.test(pose))?.[1]??'Đang nghỉ',place:ZONE_TEXT[a.slot?.zone??'']??'Khu nghỉ',
+      sinceMs:0,agents,live,x:a.root.x,y:a.root.y,head:Math.max(60,a.head)};
+  }
+  if(!info)return null;
+  const key=info.working?'work':'break',prev=stateSince.get(name);
+  if(!prev||prev.key!==key)stateSince.set(name,{key,at:performance.now()});
+  info.sinceMs=performance.now()-stateSince.get(name)!.at;
+  return info;
+}
+const panel=new InfoPanel(document.getElementById('world')!,app.canvas,readInfo);
+panel.onToggle=name=>{const s=workSeatOf(name);if(s)goIdle(s);else backToWork(name);setTimeout(()=>panel.render(),350)};
+// Selection ring under the chosen character's feet.
+const ring=new Graphics();ring.visible=false;layer.addChild(ring);
+onCharacterTap=name=>{if(panel.current===name)panel.close();else panel.open(name)};
+let panelClock=0;
+app.ticker.add(ticker=>{
+  for(const name of idlers.keys())readInfo(name);       // keep "since" timers ticking for every character
+  ring.visible=!!panel.current;
+  if(!panel.current)return;
+  const info=readInfo(panel.current);if(!info){panel.close();return}
+  const color=Number.parseInt((PROFILE_COLORS[panel.current]??'#5fd0ff').slice(1),16),pulse=0.55+0.25*Math.sin(performance.now()/220);
+  ring.clear().ellipse(info.x,info.y-2,34,11).stroke({color,width:3,alpha:pulse}).ellipse(info.x,info.y-2,26,8).fill({color,alpha:0.18});
+  ring.zIndex=info.y-0.5;
+  if((panelClock+=ticker.deltaMS)>400){panelClock=0;panel.render()}
+});
 
 const log=document.getElementById('log')!;
 let logClock=0;
