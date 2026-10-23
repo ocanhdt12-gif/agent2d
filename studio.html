@@ -39,7 +39,17 @@
   #live .l{font-family:'Silkscreen',monospace;font-size:18px;color:var(--mint);display:flex;align-items:center;gap:8px}
   #live .l i{width:10px;height:10px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint);animation:blink 1.6s infinite}
   #live.off .l{color:var(--amber)}#live.off .l i{background:var(--amber);box-shadow:0 0 10px var(--amber)}
-  #live .c{color:var(--muted);margin-top:4px}
+  #live .c{color:var(--muted);font:12px ui-monospace,Menlo,monospace;margin-left:auto}
+  #live{min-width:250px;gap:5px}
+  #live[data-mode=demo] .l,#live[data-mode=random] .l{color:var(--violet)}
+  #live[data-mode=demo] .l i,#live[data-mode=random] .l i{background:var(--violet);box-shadow:0 0 10px var(--violet)}
+  #live .btns{display:flex;gap:5px}
+  #live button{flex:1;padding:4px 6px;cursor:pointer;background:#16243d;color:var(--text);border:1px solid var(--line2);border-radius:3px;font:10px 'Silkscreen',monospace;letter-spacing:.5px;white-space:nowrap}
+  #live button:hover{border-color:var(--cyan);color:#fff}
+  #live button.on{background:#3b2470;border-color:var(--violet);color:#fff}
+  #live #b-file{flex:0 0 auto}
+  #live[data-mode=file] #b-file{display:none}
+  #live .note{color:var(--muted);font-size:10px;max-width:250px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:13px}
   @keyframes blink{50%{opacity:.35}}
   /* scene */
   #stage{position:relative;min-height:0;display:flex;align-items:center;justify-content:center;padding:6px;overflow:hidden}
@@ -140,7 +150,9 @@
       <div class="stat"><span class="k">Review</span><span class="v rev" id="s-rev">0</span></div>
       <div class="stat"><span class="k">Done</span><span class="v done" id="s-done">0</span></div>
     </div>
-    <div id="live" class="box"><div class="l"><i></i><span id="live-t">LIVE</span></div><div class="c" id="clock">--:--:--</div></div>
+    <div id="live" class="box"><div class="l"><i></i><span id="live-t">LIVE</span><span class="c" id="clock">--:--:--</span></div>
+      <div class="btns"><button id="b-demo" title="Chạy kịch bản giả lập đủ luồng ngay trên trình duyệt">▶ DEMO</button><button id="b-random" title="Random trạng thái cả văn phòng (bấm lại để random tiếp)">🎲 RANDOM</button><button id="b-file" title="Về dữ liệu thật (file JSON)">✕</button></div>
+      <div class="note" id="note"></div></div>
   </header>
   <main id="stage" class="box"><div id="world"></div>
     <button id="fs" title="Toàn màn hình (F)"><svg viewBox="0 0 16 16"><path id="fs-ico" d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg><span id="fs-t">FULLSCREEN</span></button></main>

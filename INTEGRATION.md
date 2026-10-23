@@ -131,6 +131,8 @@ Header: **Layer** = `currentLayer`/`totalLayers`, **Phase** suy từ role đang 
 
 ## 6. Thử trước khi ghép (không cần project thật)
 
+Nhanh nhất: bấm **▶ DEMO** trên trang (mục 7). Muốn thử đúng đường đọc file thì chạy script ghi file:
+
 ```bash
 node scripts/dummy-scenario.mjs --speed 2
 ```
@@ -143,6 +145,10 @@ Kịch bản giả lập đủ luồng template (spec → brainstorm → design 
 
 - Click nhân vật (trong scene, danh sách AGENTS/IDLE hoặc ô CHARACTERS) → thẻ thông tin: tên, role, đang làm gì, agent/task từ file.
 - Nút **FULLSCREEN** góc vùng làm việc hoặc phím **F**; thoát bằng **Esc**/**F**.
+- Góc phải header:
+  - **▶ DEMO** — chạy kịch bản giả lập đủ luồng (cùng kịch bản với `scripts/dummy-scenario.mjs`) **ngay trên trình duyệt**, ×3 tốc độ, ~6,5 phút/vòng, lặp lại. Dòng dưới hiện % vòng + bước hiện tại. Không ghi file nào. Mở thẳng bằng `studio.html?demo`.
+  - **🎲 RANDOM** — random trạng thái cả văn phòng (số builder/reviewer, ai trong Eve/Theo/Oracle/Pixel/Sherlock đi làm, layer, task xong/blocked). Bấm lại để random tiếp.
+  - **✕** — về dữ liệu thật (file JSON). Đèn: xanh **LIVE** = file, tím **DEMO/RANDOM**, cam **NO FILE**.
 
 ## 8. Lỗi hay gặp
 

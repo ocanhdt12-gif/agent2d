@@ -3,7 +3,8 @@
 import {Application,Assets,Container,Graphics,Sprite,Text,Texture} from 'pixi.js';
 import {buildIcons,iconSprite,isIcon,setIcon} from './pixel-icons';
 import {IdleAgent,IdleWorld} from './idle';
-import {LiveMapper,type LiveFile,type Cast as LiveCast} from './live-state';
+import {LiveMapper,type Cast as LiveCast} from './live-state';
+import {readState} from './live-source';
 import {InfoPanel,PROFILES,type CharacterInfo} from './info-panel';
 const PROFILE_COLORS=Object.fromEntries(Object.entries(PROFILES).map(([k,v])=>[k,v.color]));
 
@@ -991,7 +992,7 @@ async function pollLive(){
   if(!live)return;
   let pollMs=1000;
   try{
-    const file:LiveFile&{pollMs?:number;file?:string}=await (await fetch('/state.json',{cache:'no-store'})).json();
+    const file=await readState();   // the JSON file, or the in-browser DEMO / RANDOM source
     pollMs=file.pollMs??pollMs;
     if(file.missing){liveInfo=`chưa có file: ${file.file}`;liveCasts=new Map()}
     else{liveCasts=liveMapper.map(file);liveInfo=`${(file.agents??[]).length} agent · ${file.updatedAt??''}`}

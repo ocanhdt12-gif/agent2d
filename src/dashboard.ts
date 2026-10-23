@@ -3,6 +3,7 @@
 // character's live status from the scene through window.__studio (set by coding-test.ts).
 import {PROFILES,type CharacterInfo} from './info-panel';
 import {BUILDERS,REVIEWERS,type LiveFile} from './live-state';
+import {readState,readProgress,getMode,setMode,reroll,onModeChange,demoClock} from './live-source';
 
 type Task={task:string;title?:string};
 type Progress={missing?:boolean;projectName?:string;currentLayer?:number;totalLayers?:number;tasks?:Task[];
@@ -22,11 +23,11 @@ const titles=new Map<string,string>();
 
 async function poll(){
   try{
-    const [s,p]=await Promise.all([fetch('/state.json',{cache:'no-store'}),fetch('/progress.json',{cache:'no-store'})]);
-    state=await s.json();progress=await p.json();online=!state.missing;
+    state=await readState();online=!state.missing;
     if((state as {pollMs?:number}).pollMs)pollMs=(state as {pollMs?:number}).pollMs!;
-  }catch{online=false}
-  setTimeout(poll,pollMs);
+  }catch{online=false;state={agents:[]}}
+  try{progress=await readProgress()}catch{progress={missing:true}}
+  setTimeout(poll,getMode()==='file'?pollMs:500);
 }
 
 function phaseOf(roles:Set<string>){
@@ -112,10 +113,23 @@ function buildRoster(){
 }
 
 function tickClock(){
+  const m=getMode(),d=demoClock();
   $('clock').textContent=new Date().toLocaleTimeString('vi-VN',{hour12:false});
-  $('live').classList.toggle('off',!online);
-  $('live-t').textContent=online?'LIVE':'NO FILE';
+  $('live').classList.toggle('off',m==='file'&&!online);
+  $('live').dataset.mode=m;
+  $('live-t').textContent=m==='demo'?'DEMO':m==='random'?'RANDOM':online?'LIVE':'NO FILE';
+  $('note').textContent=d?`${Math.round(d.at/d.length*100)}% · ${d.note}`:m==='random'?'Trạng thái ngẫu nhiên':'';
+  $('b-demo').classList.toggle('on',m==='demo');$('b-random').classList.toggle('on',m==='random');
+  $('b-demo').textContent=m==='demo'?'■ DỪNG DEMO':'▶ DEMO';
 }
+
+// DEMO: play the full-flow scenario in the browser (click again → back to the real file).
+// RANDOM: random snapshot of the whole office (click again → new snapshot; ✕ → back to the file).
+$('b-demo').addEventListener('click',()=>setMode(getMode()==='demo'?'file':'demo'));
+$('b-random').addEventListener('click',()=>getMode()==='random'?reroll():setMode('random'));
+$('b-file').addEventListener('click',()=>setMode('file'));
+onModeChange(()=>{tickClock();renderBoard()});
+if(new URLSearchParams(location.search).has('demo'))setMode('demo');
 
 buildRoster();
 document.addEventListener('click',e=>{
