@@ -14,7 +14,8 @@
 //  then everyone idle (an agent left with phase "idle" counts as idle too) and the loop restarts.
 // Roles beyond agent-live.mjs's four (builder|reviewer|merger|dispatcher) are written too; the studio maps them.
 //
-// Usage: node scripts/dummy-scenario.mjs [--speed 1] [--once] [--file <path>]
+// Usage: node scripts/dummy-scenario.mjs [--speed 1] [--stretch 2.5] [--once] [--file <path>]
+//   --stretch: multiplies every task/step duration (default 2.5 = each task ~2.5× longer than the base timeline)
 //   file defaults to studio.config.json → stateFile (the same file the studio page reads).
 import {writeFileSync,renameSync,mkdirSync,readFileSync} from 'node:fs';
 import {dirname,resolve} from 'node:path';
@@ -25,11 +26,13 @@ const args=process.argv.slice(2),opt=k=>{const i=args.indexOf(`--${k}`);return i
 let cfg={};try{cfg=JSON.parse(readFileSync(resolve(root,'studio.config.json'),'utf8'))}catch{}
 const file=resolve(root,opt('file')??process.env.STATE_FILE??cfg.stateFile??'.context/agents-live.json');
 const speed=Number(opt('speed')??1),once=args.includes('--once');
+// Every wait in the timeline is multiplied by STRETCH so each task lasts longer (anh: "lâu hơn chút", 23/10).
+const STRETCH=Number(opt('stretch')??2.5);
 
 // ── timeline builder ────────────────────────────────────────────────────────────────────────────────
 // Each event: {t, op, agent?, role?, phase?, task?, title?, note?}; `t` accumulates the waits.
 const T=[];let t=0;
-const ev=(dt,e)=>{t+=dt;T.push({t,...e})};
+const ev=(dt,e)=>{t+=dt*STRETCH;T.push({t,...e})};
 const say=(dt,note)=>ev(dt,{op:'note',note});
 const enter=(dt,agent,role,phase,task,title,note)=>ev(dt,{op:'enter',agent,role,phase,task,title,note});
 const leave=(dt,agent,note)=>ev(dt,{op:'leave',agent,note});
@@ -67,7 +70,7 @@ const closeLayer=(n)=>{
   enter(2,'spec-validator','spec-validator','review',null,`Phase review layer ${n}`,'5g spec-validator');
   leave(6,'spec-validator');
   clear(0,`⏸ checkpoint layer ${n} — cleanup worktree, chờ anh approve`);
-  t+=8;
+  t+=8*STRETCH;
 };
 
 // ── L0: git init + CI, foundation tasks ────────────────────────────────────────────────────────────
@@ -76,7 +79,7 @@ plan(0);
 enter(2,'devops','devops','building',null,'git init + CI/CD workflows','6 devops (layer 0)');
 L0.forEach((x,i)=>build(i+1,x,'builder',i?undefined:'5a 2 builder song song (worktree riêng)'));
 leave(6,'devops');
-L0.forEach((x,i)=>{t+=4;review(i+1,x,i?undefined:'5d reviewer (model khác)')});
+L0.forEach((x,i)=>{t+=4*STRETCH;review(i+1,x,i?undefined:'5d reviewer (model khác)')});
 leave(6,'reviewer-1');leave(2,'reviewer-2');
 merge(0);
 closeLayer(0);
@@ -92,7 +95,7 @@ say(4,'retry 3/3 FAIL → task BLOCKED (chờ API key payment)');
 leave(0,'error-analyzer');
 leave(0,'builder-3','builder-3 BLOCKED → task về TODO');
 review(1,L1[0],'5d reviewer task-01');
-t+=3;review(2,L1[1]);
+t+=3*STRETCH;review(2,L1[1]);
 say(6,'✗ review task-02 FAIL (STRICT): thiếu kiểm tra token hết hạn');
 leave(0,'reviewer-2');
 enter(0,'builder-2','builder','building',L1[1][0],`${L1[1][1]} — round 2`,'builder sửa theo review (round 2)');
@@ -100,7 +103,7 @@ leave(4,'reviewer-1','review task-01 PASS');
 review(2,L1[1]);
 leave(7,'reviewer-2','review task-02 PASS (round 2)');
 build(1,L1[3],'builder','5a wave 2 — task-04');
-t+=8;review(1,L1[3]);
+t+=8*STRETCH;review(1,L1[3]);
 leave(6,'reviewer-1');
 merge(1,()=>{
   say(4,'✗ merge CONFLICT task-01 × task-04 → chạy lại tuần tự trên integration');
@@ -115,7 +118,7 @@ closeLayer(1);
 const L2=[['layer-2/task-01','Dashboard layout'],['layer-2/task-02','Customer list + filters'],['layer-2/task-03','Customer detail page'],['layer-2/task-04','Deals pipeline (kanban)'],['layer-2/task-05','Email notifications'],['layer-2/task-06','Multi-tenant RBAC (hard)']];
 plan(2);
 L2.forEach((x,i)=>build(i+1,x,i===5?'builder-strong':'builder',i?(i===5?'task khó → builder-strong (opt-in)':undefined):'5a 6 builder song song'));
-[4,2,3,3,2,5].forEach((d,i)=>{t+=d;review(i+1,L2[i],i?undefined:'5d reviewer lần lượt nhận task')});
+[4,2,3,3,2,5].forEach((d,i)=>{t+=d*STRETCH;review(i+1,L2[i],i?undefined:'5d reviewer lần lượt nhận task')});
 [3,2,2,3,2,4].forEach((d,i)=>leave(d,`reviewer-${i+1}`));
 merge(2);
 closeLayer(2);
@@ -124,7 +127,7 @@ closeLayer(2);
 const L3=[['layer-3/task-01','Reports + export'],['layer-3/task-02','Settings page']];
 plan(3);
 L3.forEach((x,i)=>build(i+1,x,'builder',i?undefined:'5a layer cuối'));
-L3.forEach((x,i)=>{t+=6;review(i+1,x)});
+L3.forEach((x,i)=>{t+=6*STRETCH;review(i+1,x)});
 leave(5,'reviewer-1');leave(2,'reviewer-2');
 merge(3);
 enter(2,'devops','devops','building',null,'Deploy staging','6 devops deploy staging');
@@ -158,15 +161,15 @@ enter(0,'spec-validator','spec-validator','review',null,'Validate spec delta','s
 leave(5,'spec-validator','⏸ approve phase plan');
 enter(2,'builder-1','builder','building','feature-export-csv/phase-1-task-01','Export API');
 enter(1,'builder-2','builder','building','feature-export-csv/phase-1-task-02','Nút Export trên UI');
-t+=8;review(1,['feature-export-csv/phase-1-task-01','Export API']);
-t+=3;review(2,['feature-export-csv/phase-1-task-02','Nút Export trên UI']);
+t+=8*STRETCH;review(1,['feature-export-csv/phase-1-task-01','Export API']);
+t+=3*STRETCH;review(2,['feature-export-csv/phase-1-task-02','Nút Export trên UI']);
 leave(5,'reviewer-1');leave(2,'reviewer-2');
 enter(0,'spec-validator','spec-validator','review',null,'Phase close feature','spec-validator phase close');
 leave(5,'spec-validator');
 leave(0,'change-request','feature done → archive change file');
 enter(2,'builder-1','builder','idle',null,null,'agent còn trong file với phase "idle" → vẫn là nghỉ');
 clear(6,'═══ xong — cả team nghỉ ═══');
-const LENGTH=t+12;
+const LENGTH=t+12*STRETCH;
 
 // ── writer (atomic tmp + rename, like agent-live.mjs) ──────────────────────────────────────────────
 let agents=[],start=Date.now();
