@@ -1,4 +1,4 @@
-// Build a slim static site for hosting (Vercel): vite build of coding-test.html + only the assets it loads.
+// Build a slim static site for hosting (Vercel): vite build of studio.html + coding-test.html + only the assets it loads.
 // Usage: node scripts/build-deploy.mjs  → dist-deploy/ (deploy with: npx vercel deploy dist-deploy --prod)
 import {execSync} from 'node:child_process';
 import {cpSync,mkdirSync,readdirSync,writeFileSync,existsSync} from 'node:fs';
@@ -11,5 +11,5 @@ for(const f of ['environment/office_original.png','environment/review_rail_fg.pn
 for(const name of readdirSync(src))for(const area of ['coding','review','merge','plan','relax','idle'])
   if(existsSync(`${src}/${name}/${area}/manifest.json`))
     for(const f of readdirSync(`${src}/${name}/${area}`))if(f.endsWith('.png')||f==='manifest.json')copy(`${name}/${area}/${f}`);
-writeFileSync('dist-deploy/vercel.json',JSON.stringify({rewrites:[{source:'/',destination:'/coding-test.html'}]},null,2));
+writeFileSync('dist-deploy/vercel.json',JSON.stringify({rewrites:[{source:'/',destination:'/studio.html'}]},null,2));
 console.log('dist-deploy ready');
