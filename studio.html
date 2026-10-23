@@ -45,6 +45,11 @@
   #stage{position:relative;min-height:0;display:flex;align-items:center;justify-content:center;padding:6px;overflow:hidden}
   #world{position:relative;height:100%;width:100%;display:flex;align-items:center;justify-content:center}
   #world canvas{display:block;max-width:100%;max-height:100%;width:auto!important;height:auto!important;image-rendering:pixelated;border-radius:2px}
+  #fs{position:absolute;top:10px;right:10px;z-index:25;display:flex;align-items:center;gap:6px;padding:6px 10px;cursor:pointer;
+    background:rgba(15,26,46,.85);color:var(--text);border:2px solid var(--line2);border-radius:4px;font:11px 'Silkscreen',monospace;letter-spacing:1px}
+  #fs:hover{border-color:var(--cyan);color:#fff;box-shadow:0 0 10px rgba(95,208,255,.35)}
+  #fs svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}
+  #stage:fullscreen{background:var(--bg);border:none;border-radius:0;padding:0}
   /* sidebar */
   #side{grid-row:2/4;grid-column:2;display:flex;flex-direction:column;gap:10px;min-height:0}
   .sec{padding:10px 12px;min-height:0;display:flex;flex-direction:column}
@@ -86,6 +91,19 @@
   .ch .pic i{position:absolute;right:3px;top:3px;width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 6px var(--amber)}
   .ch.work .pic i{background:var(--mint);box-shadow:0 0 6px var(--mint)}
   .ch .n{margin-top:2px;font-size:10.5px;color:#fff}
+  /* narrow / short windows: stack everything and scroll the page, the scene keeps a real height */
+  @media (max-width:1100px),(max-height:640px){
+    body{overflow:auto}
+    #app{height:auto;grid-template-columns:1fr;grid-template-rows:none}
+    #hdr{grid-column:1;grid-template-columns:1fr}
+    #stats{flex-wrap:wrap}.stat{border-bottom:1px solid var(--line)}
+    #stage{grid-column:1;height:min(72vw,82vh);min-height:260px}
+    #side{grid-row:auto;grid-column:1}
+    #agents,#idle{max-height:340px}
+    #roster{grid-column:1;grid-template-columns:1fr}
+  }
+  #stage:fullscreen{height:100vh}
+  #stage.max{position:fixed;inset:0;z-index:40;height:100vh;min-height:0;border:none;border-radius:0;background:var(--bg);padding:0}
   /* scene helpers hidden (test controls) */
   #hidden{display:none}
   #loading{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--bg);transition:opacity .5s}
@@ -124,7 +142,8 @@
     </div>
     <div id="live" class="box"><div class="l"><i></i><span id="live-t">LIVE</span></div><div class="c" id="clock">--:--:--</div></div>
   </header>
-  <main id="stage" class="box"><div id="world"></div></main>
+  <main id="stage" class="box"><div id="world"></div>
+    <button id="fs" title="Toàn màn hình (F)"><svg viewBox="0 0 16 16"><path id="fs-ico" d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/></svg><span id="fs-t">FULLSCREEN</span></button></main>
   <aside id="side">
     <section id="board" class="sec box"><h3>TASK BOARD</h3>
       <div class="cols">

@@ -129,3 +129,26 @@ setInterval(()=>{
   const st=(window as unknown as {__studio?:Studio}).__studio;
   if(st)renderAgents(st);
 },500);
+
+// Fullscreen for the scene area (button or F key); the info card lives inside #world so it stays visible.
+// Real browser fullscreen when allowed, otherwise (embedded views) the stage just covers the whole window.
+const stage=$('stage');
+const isFs=()=>!!document.fullscreenElement||stage.classList.contains('max');
+function syncFs(){
+  const on=isFs();
+  $('fs-t').textContent=on?'THOÁT':'FULLSCREEN';
+  $('fs-ico').setAttribute('d',on?'M5 1v4H1M15 5h-4V1M11 15v-4h4M1 11h4v4':'M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4');
+  dispatchEvent(new Event('resize'));
+}
+function toggleFs(){
+  if(isFs()){stage.classList.remove('max');if(document.fullscreenElement)void document.exitFullscreen();syncFs();return}
+  // cover the window at once; real fullscreen on top when the browser allows it (may hang or be refused when embedded)
+  stage.classList.add('max');syncFs();
+  stage.requestFullscreen?.().catch(()=>{});
+}
+$('fs').addEventListener('click',e=>{e.stopPropagation();toggleFs()});
+addEventListener('keydown',e=>{
+  if((e.key==='f'||e.key==='F')&&!(e.target as HTMLElement).closest('input,textarea'))toggleFs();
+  if(e.key==='Escape'&&stage.classList.contains('max')){stage.classList.remove('max');syncFs()}
+});
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement)stage.classList.remove('max');syncFs()});
