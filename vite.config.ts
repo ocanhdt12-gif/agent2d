@@ -18,7 +18,12 @@ function liveState():Plugin{
       :resolve(__dirname,process.env.PROGRESS_FILE||cfg.progressFile||'.context/progress.json');
     res.setHeader('Content-Type','application/json');
     res.setHeader('Cache-Control','no-store');
-    try{res.statusCode=200;res.end(readFileSync(file,'utf8'))}
+    // pollMs rides along so the page polls at the configured rate; a half-written file is passed through as is
+    // (the page fails to parse it and keeps its last state)
+    try{
+      const raw=readFileSync(file,'utf8');res.statusCode=200;
+      try{res.end(JSON.stringify({...JSON.parse(raw),pollMs:cfg.pollMs}))}catch{res.end(raw)}
+    }
     catch{res.statusCode=200;res.end(JSON.stringify({missing:true,file,pollMs:cfg.pollMs}))}
   };
   return {
