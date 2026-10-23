@@ -25,6 +25,9 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const args=process.argv.slice(2),opt=k=>{const i=args.indexOf(`--${k}`);return i<0?undefined:args[i+1]??true};
 let cfg={};try{cfg=JSON.parse(readFileSync(resolve(root,'studio.config.json'),'utf8'))}catch{}
 const file=resolve(root,opt('file')??process.env.STATE_FILE??cfg.stateFile??'.context/agents-live.json');
+// progress.json (layers + completed/blocked tasks) for the task board; same format as the template's
+// progress-write.mjs, plus a `tasks` list of the planned tasks (extension so the board can show TODO).
+const progressFile=resolve(root,opt('progress')??process.env.PROGRESS_FILE??cfg.progressFile??resolve(dirname(file),'progress.json'));
 const speed=Number(opt('speed')??1),once=args.includes('--once');
 // Every wait in the timeline is multiplied by STRETCH so each task lasts longer (anh: "lâu hơn chút", 23/10).
 const STRETCH=Number(opt('stretch')??2.5);
@@ -37,9 +40,13 @@ const say=(dt,note)=>ev(dt,{op:'note',note});
 const enter=(dt,agent,role,phase,task,title,note)=>ev(dt,{op:'enter',agent,role,phase,task,title,note});
 const leave=(dt,agent,note)=>ev(dt,{op:'leave',agent,note});
 const clear=(dt,note)=>ev(dt,{op:'clear',note});
+const prog=(fn,note)=>ev(0,{op:'progress',fn,note});
+const now=()=>new Date().toISOString();
+const complete=(...ids)=>prog(p=>{for(const task of ids)if(!p.completedTasks.some(c=>c.task===task)&&!p.blockedTasks.some(b=>b.task===task))p.completedTasks.push({task,review:'STRICT PASS',round:1,completedAt:now()})});
 
 // ── 0. /start: spec → brainstorm → design → graph ──────────────────────────────────────────────────
 clear(0,'═══ /start — dự án acme-crm, chưa có spec ═══');
+prog(p=>Object.assign(p,{projectName:'acme-crm',currentLayer:0,totalLayers:4,tasks:[],completedTasks:[],blockedTasks:[],inProgressTask:null}));
 enter(3,'spec-init','spec-init','building',null,'Đọc code → SPECIFICATIONS.md + spec/','1a spec-init (read-only, 1 lần)');
 leave(9,'spec-init');
 enter(0,'spec-validator','spec-validator','review',null,'Validate spec vs code/docs','1b spec-validator');
@@ -55,6 +62,7 @@ enter(3,'design','design','building',null,'Design tokens + screen specs','3 desi
 leave(10,'design','⏸ confirm tokens');
 enter(3,'graph','graph','orchestrating',null,'Layer plan: 4 layers, 14 tasks','4 graph');
 leave(7,'graph','⏸ approve plan');
+prog(p=>{p.tasks=[...L0,...L1,...L2,...L3].map(([task,title])=>({task,title}))},'progress.json ← 14 task (TODO)');
 
 // ── loop helpers ────────────────────────────────────────────────────────────────────────────────────
 const plan=(n)=>enter(3,'dispatcher','dispatcher','orchestrating',null,`plan --layer ${n} → parallel waves`,`═══ LOOP layer ${n}: dispatcher plan ═══`);
@@ -64,6 +72,8 @@ const merge=(n,extra)=>{
   enter(3,'merger','merger','merging',null,`merge --layer ${n} → layer-${n}-integration`,'5e merge (dispatcher)');
   extra?.();
   leave(8,'merger');
+  prog(p=>{for(const [task] of [L0,L1,L2,L3][n])if(!p.completedTasks.some(c=>c.task===task)&&!p.blockedTasks.some(b=>b.task===task))p.completedTasks.push({task,review:'STRICT PASS',round:1,completedAt:now()})});
+  prog(p=>{p.currentLayer=Math.min(n+1,p.totalLayers)},`progress.json ← layer ${n} done`);
 };
 const closeLayer=(n)=>{
   leave(0,'dispatcher');
@@ -92,6 +102,7 @@ L1.slice(0,3).forEach((x,i)=>build(i+1,x,'builder',i?undefined:'5a wave 1 — 3 
 enter(8,'error-analyzer','error-analyzer','building',L1[2][0],'Root cause: webhook signature (retry 1/3)','5b test FAIL → 5c error-analyzer');
 say(4,'retry 2/3 FAIL');
 say(4,'retry 3/3 FAIL → task BLOCKED (chờ API key payment)');
+prog(p=>p.blockedTasks.push({task:L1[2][0],reason:'Chờ API key của payment provider',since:now()}));
 leave(0,'error-analyzer');
 leave(0,'builder-3','builder-3 BLOCKED → task về TODO');
 review(1,L1[0],'5d reviewer task-01');
@@ -147,6 +158,7 @@ say(0,'═══ BẢO TRÌ (mode: maintenance) ═══');
 enter(2,'bug-check','bug-check','review',null,'Sweep màn Customer list (read-only)','/bug-check — liệt kê defect, KHÔNG sửa');
 leave(8,'bug-check','⏸ chờ anh chọn bug');
 enter(3,'change-request','change-request','orchestrating','bug-filter-reset','BUG: filter reset khi đổi trang','/bug → change-request (BUG)');
+prog(p=>p.tasks.push({task:'bug-phase-1-task-01',title:'BUG: filter reset khi đổi trang'}));
 enter(2,'error-analyzer','error-analyzer','building','bug-filter-reset','Root cause trước (Iron Law)','root cause → repro');
 leave(6,'error-analyzer');
 enter(0,'builder-1','builder','building','bug-phase-1-task-01','Giữ filter trong URL state');
@@ -154,7 +166,9 @@ leave(8,'builder-1');
 enter(0,'reviewer-1','reviewer','review','bug-phase-1-task-01','Giữ filter trong URL state');
 leave(5,'reviewer-1');
 leave(0,'change-request','bug done → commit');
+complete('bug-phase-1-task-01');
 enter(3,'change-request','change-request','orchestrating','feature-export-csv','ADDITIVE: export Excel/CSV','/feature → change-request (ADDITIVE)');
+prog(p=>p.tasks.push({task:'feature-export-csv/phase-1-task-01',title:'Export API'},{task:'feature-export-csv/phase-1-task-02',title:'Nút Export trên UI'}));
 enter(2,'spec-publisher','spec-publisher','building',null,'spec delta + bump spec_version + test-scope','spec-publisher');
 leave(5,'spec-publisher');
 enter(0,'spec-validator','spec-validator','review',null,'Validate spec delta','spec-validator');
@@ -167,12 +181,19 @@ leave(5,'reviewer-1');leave(2,'reviewer-2');
 enter(0,'spec-validator','spec-validator','review',null,'Phase close feature','spec-validator phase close');
 leave(5,'spec-validator');
 leave(0,'change-request','feature done → archive change file');
+complete('feature-export-csv/phase-1-task-01','feature-export-csv/phase-1-task-02');
 enter(2,'builder-1','builder','idle',null,null,'agent còn trong file với phase "idle" → vẫn là nghỉ');
 clear(6,'═══ xong — cả team nghỉ ═══');
 const LENGTH=t+12*STRETCH;
 
 // ── writer (atomic tmp + rename, like agent-live.mjs) ──────────────────────────────────────────────
-let agents=[],start=Date.now();
+let agents=[],progress={tasks:[],completedTasks:[],blockedTasks:[]},start=Date.now();
+function writeProgress(){
+  mkdirSync(dirname(progressFile),{recursive:true});
+  const tmp=`${progressFile}.tmp-${process.pid}`;
+  writeFileSync(tmp,`${JSON.stringify({...progress,lastUpdated:new Date().toISOString()},null,2)}\n`);
+  renameSync(tmp,progressFile);
+}
 const elapsed=()=>(Date.now()-start)/1000*speed;
 function write(){
   mkdirSync(dirname(file),{recursive:true});
@@ -181,6 +202,7 @@ function write(){
   renameSync(tmp,file);
 }
 function apply(e){
+  if(e.op==='progress'){e.fn(progress);writeProgress();if(!e.note)return}
   if(e.op==='clear')agents=[];
   else if(e.op==='leave')agents=agents.filter(a=>a.agent!==e.agent);
   else if(e.op==='enter'){
@@ -190,11 +212,11 @@ function apply(e){
     a.since=prev&&prev.task===e.task&&prev.phase===e.phase?prev.since:new Date().toISOString();
     agents=[...agents.filter(x=>x.agent!==e.agent),a].sort((x,y)=>x.agent.localeCompare(y.agent,undefined,{numeric:true}));
   }
-  if(e.op!=='note')write();
+  if(e.op!=='note'&&e.op!=='progress')write();
   const act=agents.filter(a=>a.phase!=='idle').map(a=>a.agent).join(', ')||'— (cả team nghỉ)';
   const head=e.note?`▶ ${e.note}`:'';
-  const what=e.op==='note'?'':`${e.op} ${e.agent??''}`.trim();
-  console.log(`${String(Math.round(elapsed())).padStart(4)}s  ${head}${head&&what?'  · ':''}${what}${e.op==='note'?'':`   [đang làm: ${act}]`}`);
+  const what=e.op==='note'||e.op==='progress'?'':`${e.op} ${e.agent??''}`.trim();
+  console.log(`${String(Math.round(elapsed())).padStart(4)}s  ${head}${head&&what?'  · ':''}${what}${e.op==='note'||e.op==='progress'?'':`   [đang làm: ${act}]`}`);
 }
 console.log(`dummy scenario → ${file}\nspeed ×${speed} · ${Math.round(LENGTH/speed)} s/vòng${once?'':' · lặp vô hạn — Ctrl+C để dừng'}\n`);
 async function run(){

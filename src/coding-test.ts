@@ -1013,7 +1013,7 @@ liveButton.onclick=()=>{
   if(live){autoShift=false;shiftAt.clear();paintShift();liveTry.clear();pollLive()}
 };
 paintLive();idleBar.appendChild(liveButton);
-if(new URLSearchParams(location.search).has('live'))liveButton.click();
+if(new URLSearchParams(location.search).has('live')||document.body.dataset.studio!==undefined)liveButton.click();
 
 // ── Character info card ────────────────────────────────────────────────────────────────────────────
 const WORK_TEXT:Record<string,string>={
@@ -1052,8 +1052,34 @@ panel.onToggle=name=>{const s=workSeatOf(name);if(s)goIdle(s);else backToWork(na
 // Selection ring under the chosen character's feet.
 const ring=new Graphics();ring.visible=false;layer.addChild(ring);
 onCharacterTap=name=>{if(panel.current===name)panel.close();else panel.open(name)};
+// Name tags over every character (studio page): name on a dark pill with the role colour.
+const tagLayer=new Container();tagLayer.zIndex=1e7;layer.addChild(tagLayer);
+const tags=new Map<string,Container>();
+let showTags=document.body.dataset.studio!==undefined;
+for(const name of idlers.keys()){
+  const c=new Container(),color=PROFILE_COLORS[name]??'#5fd0ff';
+  const label=new Text({resolution:3,text:name[0].toUpperCase()+name.slice(1),style:{fontFamily:'ui-monospace,Menlo,Consolas,monospace',fontSize:11,fontWeight:'800',fill:'#ffffff'}});
+  label.anchor.set(.5);
+  const w=label.width+12;
+  c.addChild(new Graphics().roundRect(-w/2,-9,w,18,3).fill({color:'#0b1322',alpha:0.88}).stroke({color,width:1.5}),label);
+  c.eventMode='static';c.cursor='pointer';c.on('pointertap',()=>onCharacterTap(name));
+  tags.set(name,c);tagLayer.addChild(c);
+}
+function updateTags(){
+  tagLayer.visible=showTags;if(!showTags)return;
+  for(const [name,c] of tags){
+    const info=readInfo(name);c.visible=!!info&&(info.working||(idlers.get(name)?.agent.root.alpha??0)>0.6);
+    if(info)c.position.set(Math.round(info.x),Math.round(info.y-info.head-12));
+  }
+}
+// API for the studio dashboard (src/dashboard.ts).
+Object.assign(window,{__studio:{
+  readInfo,open:(name:string)=>onCharacterTap(name),names:[...idlers.keys()],
+  liveCasts:()=>liveCasts,setTags:(v:boolean)=>{showTags=v},
+}});
 let panelClock=0;
 app.ticker.add(ticker=>{
+  updateTags();
   for(const name of idlers.keys())readInfo(name);       // keep "since" timers ticking for every character
   ring.visible=!!panel.current;
   if(!panel.current)return;

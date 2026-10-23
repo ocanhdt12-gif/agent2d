@@ -1,4 +1,5 @@
 {
   "stateFile": ".context/agents-live.json",
-  "pollMs": 1000
+  "pollMs": 1000,
+  "progressFile": ".context/progress.json"
 }

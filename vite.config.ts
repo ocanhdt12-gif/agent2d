@@ -2,16 +2,20 @@ import {defineConfig,type Plugin} from 'vite';
 import {readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 
-// Live state: the page polls /state.json, which serves the agents-live JSON written by the other system
-// (opencode-project-template's agent-live.mjs). Path from studio.config.json → "stateFile" (relative to this
-// project or absolute); the STATE_FILE env var overrides it. Read fresh on every request, never cached.
+// Live state: the page polls /state.json (agents-live JSON written by opencode-project-template's agent-live.mjs)
+// and /progress.json (its .context/progress.json: layers, completed/blocked tasks). Paths from studio.config.json
+// → "stateFile" / "progressFile" (relative to this project or absolute); env STATE_FILE / PROGRESS_FILE override.
+// Read fresh on every request, never cached.
 function liveState():Plugin{
   const config=()=>{
     try{return JSON.parse(readFileSync(resolve(__dirname,'studio.config.json'),'utf8'))}catch{return {}}
   };
   const handler=(req:{url?:string},res:{setHeader:(k:string,v:string)=>void;statusCode:number;end:(b:string)=>void},next:()=>void)=>{
-    if(!req.url?.startsWith('/state.json'))return next();
-    const cfg=config(),file=resolve(__dirname,process.env.STATE_FILE||cfg.stateFile||'.context/agents-live.json');
+    const route=req.url?.split('?')[0];
+    if(route!=='/state.json'&&route!=='/progress.json')return next();
+    const cfg=config(),file=route==='/state.json'
+      ?resolve(__dirname,process.env.STATE_FILE||cfg.stateFile||'.context/agents-live.json')
+      :resolve(__dirname,process.env.PROGRESS_FILE||cfg.progressFile||'.context/progress.json');
     res.setHeader('Content-Type','application/json');
     res.setHeader('Cache-Control','no-store');
     try{res.statusCode=200;res.end(readFileSync(file,'utf8'))}
