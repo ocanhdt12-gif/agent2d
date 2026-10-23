@@ -67,36 +67,21 @@ Tài liệu bàn giao để tiếp tục ở phiên khác. Ghi lại **quyết �
 - **Tăng tần suất đỉnh FX (anh yêu cầu):** `PEAK_BOOST=6` nhân trọng số merge_rush / idea_storm → đo mô phỏng 10 phút: Eve Merge Rush 11% + approve 8.5%, Theo Idea Storm 12% + approve 8.7% (≈ 20% thời gian có hiệu ứng, trước ~2.5%). Muốn nhiều/ít hơn: chỉnh `PEAK_BOOST`.
 - **ROSTER CHỐT (22/10, anh duyệt): 15 nhân vật** — 6 builder, 4 reviewer, Eve, Theo, Pixel, Oracle, **Sherlock** (giữ lại sau). Bỏ Captain/Muse/Cartographer/Scout/Herald (gộp như bảng dưới). Pixel làm việc một mình ở khu Relax; Oracle đứng khu Plan cạnh Theo.
 
-  **ĐẦU VÀO `/api/state` (đọc 23/10)** — Bible chỉ chốt luật (agent `agents[]` = đang làm, `benchAgents[]` = rảnh, `agent` là ID ổn định, poll 3 s, giữ snapshot cuối khi lỗi); schema chi tiết nằm ở `src/core.ts` (bản engine v1.3; file ENGINE_CONTEXT.md gốc không có trong repo):
+  **ĐẦU VÀO THẬT (đọc README opencode-project-template "How it works" + tools/task-dashboard, 23/10):** loop của template ghi file **CHỈ-HIỂN-THỊ** `<repo>/.context/agents-live.json` bằng `node tools/task-dashboard/agent-live.mjs enter|leave|clear` (atomic tmp+rename, lock):
   ```
-  State = { ok:true, mode:'live'|'demo', projectName, currentLayer, totalLayers, phase,
-            counts:{building,review,done,blocked,todo,running,waiting,total},
-            columns:{todo:[{id,title}],review:[...],done:[...]},
-            agents:[AgentData], benchAgents:[AgentData],
-            merger?:{name,active,state}, fallback?, warnings?:string[], lastUpdated? }
-  AgentData = { agent:'Nova', role:'builder', phase?:'building'|'review'|'merging'|'orchestrating'|'idle',
-                task?:'layer-2/task-01', title?:'REST API /users', sinceSec?:29, stale?:boolean }
+  { "updatedAt":"ISO", "agents":[ {agent:"builder-1", role:"builder", phase:"building", task:"layer-1/task-02", title:"REST API /users", worktree?, since:"ISO"},
+                                  {agent:"reviewer-1", role:"reviewer", phase:"review", ...}, {agent:"merger", role:"merger", phase:"merging"} ] }
   ```
-  `normalize()`: gộp benchAgents (phase→idle) + agents (đè lên nếu trùng tên); `merger.active` mà không có Eve → thêm Eve phase `merging`. Backend dùng **19 tên cũ** (roster trong core.ts).
+  role hiện chỉ `builder|reviewer|merger|dispatcher`, phase `building|review|merging|orchestrating|idle`; **tên agent là id chung (builder-1, reviewer-2…), KHÔNG phải tên nhân vật**. enter = upsert (vào scene), leave = xoá (rời scene). `progress.json` mới là source of truth (completedTasks/blockedTasks/currentLayer) — chưa dùng. Dashboard cũ của họ (`server.mjs --repo` cổng 7788) gộp thành `/api/state` (agents/benchAgents/columns/counts…) — **mình không dùng**, đọc thẳng file.
+  Pipeline: `/start` → 1a spec-init → 1b spec-validator ⏸ → 2 brainstorm ⏸ → 3 design ⏸ → 4 graph ⏸ → loop mỗi layer (dispatcher plan → builder ×N song song mỗi worktree → 5c error-analyzer khi fail → 5d reviewer → 5e merge (dispatcher, Eve chỉ là hình minh hoạ) → 5g spec-validator ⏸ checkpoint) → sau build mọi thay đổi qua `/change` (change-request → spec-publisher → builder/reviewer → spec-validator).
 
-  **MAPPING agent JSON → 15 nhân vật hiển thị** (theo `agent` trước, không có tên thì theo `role`):
-
-  | `agent` (backend) | `role` | Nhân vật | Chỗ làm việc |
-  |---|---|---|---|
-  | Nova, Orion, Lyra, Vega, Atlas, Comet | builder | cùng tên | Coding — ghế cố định theo tên (Nova G1 … Comet G6) |
-  | Sage, Iris, Juno, Echo | reviewer | cùng tên | Review R1–R4 cố định theo tên |
-  | Sherlock | error-analyzer | Sherlock | góc chữ V sau đội review |
-  | Eve | merger | Eve | trạm Merge (cả khi chỉ có `merger.active`) |
-  | Captain | dispatcher | **Theo** | bàn Plan |
-  | Muse | brainstorm | **Theo** | bàn Plan |
-  | Cartographer | graph | **Theo** | bàn Plan |
-  | Oracle | spec-validator | Oracle | cạnh Theo, quay mặt ra |
-  | Scout | spec-init | **Oracle** | như Oracle |
-  | Herald | spec-publisher | **Oracle** | như Oracle |
-  | Pixel | design | Pixel | sofa Relax |
-  | tên lạ | builder/reviewer/… | nhân vật cùng role đang trống (builder → ghế coding trống, reviewer → R trống) | — |
-  | tên lạ | role lạ | Theo | — |
-
+  **ĐÃ LÀM (23/10):**
+  - `studio.config.json` → `stateFile` (mặc định `.context/agents-live.json`, tương đối dự án hoặc tuyệt đối) + `pollMs` (1000). Biến môi trường `STATE_FILE` đè. **Anh tự config đường dẫn khi ghép.**
+  - `vite.config.ts` plugin `live-state`: `GET /state.json` trả nội dung file (dev + preview, no-store); thiếu file → `{missing:true,file}`.
+  - `src/live-state.ts` `LiveMapper`: agent → nhân vật. builder/builder-strong → pool Nova, Orion, Lyra, Vega, Atlas, Comet (chỗ trống đầu tiên, **giữ cố định khi agent còn sống**; >6 builder thì dồn vào người cuối, không thêm sprite); reviewer → pool Sage, Iris, Juno, Echo; merger → Eve; dispatcher/loop/brainstorm/graph/change-request/devops/rollback → Theo; spec-init/spec-validator/spec-publisher → Oracle; design → Pixel; error-analyzer → Sherlock; role lạ → Theo; tên cũ (Captain, Muse…, Nova…) map thẳng. Test: `tests/live-state.test.ts` (5 pass).
+  - Trang test: nút **"LIVE (đọc file JSON)"** trên thanh IDLE (hoặc mở `coding-test.html?live`): poll `/state.json`, nhân vật có agent → về ghế làm việc, không có → đi nghỉ (thử lại mỗi 5 s nếu hết chỗ nghỉ); bật LIVE thì tắt tự động làm↔nghỉ. Ô log có dòng LIVE liệt kê nhân vật ← agent (task).
+  - **Kịch bản giả lập** `node scripts/dummy-scenario.mjs [--speed 3] [--once] [--file <path>]`: ghi đúng định dạng agents-live.json theo pipeline trên (spec-init → validator → brainstorm → design → graph → layer 1: 4 builder, layer 2: 6 builder, error-analyzer, reviewer, merge, phase validator, checkpoint → /change), ~4 phút/vòng ở speed 1, lặp vô hạn. Roles ngoài 4 role của agent-live.mjs (spec-init, design, graph, error-analyzer…) là **mở rộng** — muốn Oracle/Pixel/Sherlock sáng khi chạy thật thì hệ thống kia phải ghi thêm các role đó. Đã thử: chạy speed 3 + LIVE → đúng nhân vật theo từng bước, 0 lần vừa làm vừa nghỉ.
+  - `.context/` đã vào `.gitignore` (file runtime).
   **Trạng thái → hành vi (anh chốt 23/10): CHỈ 2 TRẠNG THÁI — LÀM VIỆC hoặc IDLE.** Nhân vật làm việc khi có ít nhất 1 agent map vào nó nằm trong `agents[]` với phase ≠ `idle` và không `stale`; mọi trường hợp khác (benchAgents, phase idle, stale, biến mất khỏi JSON) = **idle**. Gộp nhiều agent (vd Captain + Muse) → Theo hiện 1 lần, HUD liệt kê đủ agent + task. Phase chỉ dùng chọn khu khi role lạ (`building`→coding, `review`→review, `merging`→Eve, `orchestrating`→Theo). Lỗi đọc → giữ snapshot cuối.
   **Nguồn dữ liệu (anh chốt 23/10):** chạy local → **đọc thẳng file JSON do hệ thống khác ghi ra** (trước đây backend `server.mjs` cổng 7788 đọc `.context/agents-live.json` rồi trả `/api/state`). Dự kiến: Vite dev server thêm middleware `/state.json` trả nội dung file (đường dẫn qua biến `STATE_FILE`, mặc định `.context/agents-live.json`, header no-cache); trang poll mỗi 1–3 s; JSON hỏng/đang ghi dở → bỏ qua lần đó, giữ snapshot cuối. Bible ghi poll 3 s.
   **Hành động trong lúc làm việc** vẫn chạy random như trang test (gõ, đọc, hiệu ứng đỉnh); có thể nối thêm sau: task mới → approve/stamp khi task chuyển sang `columns.done`.

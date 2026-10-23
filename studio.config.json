@@ -1,0 +1,4 @@
+{
+  "stateFile": ".context/agents-live.json",
+  "pollMs": 1000
+}

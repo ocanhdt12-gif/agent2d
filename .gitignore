@@ -5,3 +5,4 @@ dist-deploy/
 .DS_Store
 .claude/
 *.log
+.context/

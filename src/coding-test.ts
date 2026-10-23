@@ -3,6 +3,7 @@
 import {Application,Assets,Container,Graphics,Sprite,Text,Texture} from 'pixi.js';
 import {buildIcons,iconSprite,isIcon,setIcon} from './pixel-icons';
 import {IdleAgent,IdleWorld} from './idle';
+import {LiveMapper,type LiveFile,type Cast as LiveCast} from './live-state';
 
 type PoseInfo={file:string;width:number;height:number;bbox:number[];anchorX:number;anchorY:number};
 type Manifest={scale:number;poses:Record<string,PoseInfo>};
@@ -975,9 +976,42 @@ function updateShifts(now:number){
 }
 const shiftButton=document.createElement('button');
 const paintShift=()=>{shiftButton.textContent=autoShift?'Tự động làm ↔ nghỉ: BẬT':'Tự động làm ↔ nghỉ: TẮT';shiftButton.classList.toggle('on',autoShift)};
-shiftButton.onclick=()=>{autoShift=!autoShift;shiftAt.clear();paintShift()};
+shiftButton.onclick=()=>{autoShift=!autoShift;shiftAt.clear();paintShift();if(autoShift&&live){live=false;paintLive()}};
 paintShift();idleBar.appendChild(shiftButton);
 Object.assign((window as unknown as {__test:object}).__test,{updateShifts});
+
+// LIVE: poll /state.json (the agents-live JSON written by the other system, path in studio.config.json) and
+// put each mapped character at work or on a break. Turning it on stops the random auto shift.
+const liveMapper=new LiveMapper();
+let live=false,liveCasts=new Map<string,LiveCast>(),liveInfo='';
+const liveTry=new Map<string,number>();
+async function pollLive(){
+  if(!live)return;
+  let pollMs=1000;
+  try{
+    const file:LiveFile&{pollMs?:number;file?:string}=await (await fetch('/state.json',{cache:'no-store'})).json();
+    pollMs=file.pollMs??pollMs;
+    if(file.missing){liveInfo=`chưa có file: ${file.file}`;liveCasts=new Map()}
+    else{liveCasts=liveMapper.map(file);liveInfo=`${(file.agents??[]).length} agent · ${file.updatedAt??''}`}
+  }catch{liveInfo='JSON lỗi/đang ghi — giữ trạng thái cũ'}
+  applyLive(performance.now());
+  setTimeout(pollLive,pollMs);
+}
+function applyLive(now:number){
+  for(const name of idlers.keys()){
+    const want=liveCasts.has(name),seat=workSeatOf(name);
+    if(want&&!seat)backToWork(name);
+    else if(!want&&seat&&now-(liveTry.get(name)??0)>5000){liveTry.set(name,now);goIdle(seat)}
+  }
+}
+const liveButton=document.createElement('button');
+const paintLive=()=>{liveButton.textContent=live?'LIVE (đọc file JSON): BẬT':'LIVE (đọc file JSON): TẮT';liveButton.classList.toggle('on',live)};
+liveButton.onclick=()=>{
+  live=!live;paintLive();
+  if(live){autoShift=false;shiftAt.clear();paintShift();liveTry.clear();pollLive()}
+};
+paintLive();idleBar.appendChild(liveButton);
+if(new URLSearchParams(location.search).has('live'))liveButton.click();
 
 const log=document.getElementById('log')!;
 let logClock=0;
@@ -991,6 +1025,7 @@ app.ticker.add(ticker=>{
     logClock=0;
     log.innerHTML=seats.map(s=>`<div>Ghế ${s.index+1} ${s.occupied?`${s.cast.name} · <b>${s.action}</b><br><small>${s.lean} · ${s.pose}</small>`:'<small>trống</small>'}</div>`).join('')
       +reviewSeats.map(s=>`<div>Review R${s.index+1} ${s.occupied?`${s.cast.name} · <b>${s.action}</b><br><small>${s.pose}</small>`:'<small>trống</small>'}</div>`).join('')
+      +(live?`<div><b>LIVE</b> ${liveInfo}<br><small>${[...liveCasts.values()].map(c=>`${c.character}: ${c.agents.map(a=>`${a.agent}${a.task?` (${a.task})`:''}`).join(', ')}`).join(' · ')||'mọi người đang nghỉ'}</small></div>`:'')
       +[['Merge',eveSeat],['Plan',theoSeat],['QA',oracleSeat],['Bug',sherlockSeat],['Relax',pixelSeat]].map(([zone,s])=>{const seat=s as ReviewSeat;return `<div>${zone} ${seat.occupied?`${seat.cast.name} · <b>${seat.action}</b><br><small>${seat.pose}</small>`:'<small>trống</small>'}</div>`}).join('');
   }
 });
