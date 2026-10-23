@@ -67,23 +67,38 @@ Tài liệu bàn giao để tiếp tục ở phiên khác. Ghi lại **quyết �
 - **Tăng tần suất đỉnh FX (anh yêu cầu):** `PEAK_BOOST=6` nhân trọng số merge_rush / idea_storm → đo mô phỏng 10 phút: Eve Merge Rush 11% + approve 8.5%, Theo Idea Storm 12% + approve 8.7% (≈ 20% thời gian có hiệu ứng, trước ~2.5%). Muốn nhiều/ít hơn: chỉnh `PEAK_BOOST`.
 - **ROSTER CHỐT (22/10, anh duyệt): 15 nhân vật** — 6 builder, 4 reviewer, Eve, Theo, Pixel, Oracle, **Sherlock** (giữ lại sau). Bỏ Captain/Muse/Cartographer/Scout/Herald (gộp như bảng dưới). Pixel làm việc một mình ở khu Relax; Oracle đứng khu Plan cạnh Theo.
 
-  **Bảng quy đổi role → nhân vật** (dùng khi nối `/api/state`; role không có trong bảng → Theo):
+  **ĐẦU VÀO `/api/state` (đọc 23/10)** — Bible chỉ chốt luật (agent `agents[]` = đang làm, `benchAgents[]` = rảnh, `agent` là ID ổn định, poll 3 s, giữ snapshot cuối khi lỗi); schema chi tiết nằm ở `src/core.ts` (bản engine v1.3; file ENGINE_CONTEXT.md gốc không có trong repo):
+  ```
+  State = { ok:true, mode:'live'|'demo', projectName, currentLayer, totalLayers, phase,
+            counts:{building,review,done,blocked,todo,running,waiting,total},
+            columns:{todo:[{id,title}],review:[...],done:[...]},
+            agents:[AgentData], benchAgents:[AgentData],
+            merger?:{name,active,state}, fallback?, warnings?:string[], lastUpdated? }
+  AgentData = { agent:'Nova', role:'builder', phase?:'building'|'review'|'merging'|'orchestrating'|'idle',
+                task?:'layer-2/task-01', title?:'REST API /users', sinceSec?:29, stale?:boolean }
+  ```
+  `normalize()`: gộp benchAgents (phase→idle) + agents (đè lên nếu trùng tên); `merger.active` mà không có Eve → thêm Eve phase `merging`. Backend dùng **19 tên cũ** (roster trong core.ts).
 
-  | Role backend | Nhân vật hiển thị | Khu |
-  |---|---|---|
-  | builder | Nova, Orion, Lyra, Vega, Atlas, Comet | Coding |
-  | reviewer | Sage, Iris, Juno, Echo | Review |
-  | error-analyzer | Sherlock | Review (đứng sau đội reviewer, quay mặt ra) |
-  | merger | Eve | Merge |
-  | dispatcher (Captain — bỏ) | Theo | Plan |
-  | brainstorm (Muse — gộp) | Theo | Plan |
-  | graph (Cartographer — gộp) | Theo | Plan |
-  | design | Pixel | Relax (chỗ làm việc riêng) |
-  | spec-validator | Oracle | Plan (đứng cạnh Theo, quay mặt ra) |
-  | spec-init (Scout — gộp) | Oracle | như Oracle |
-  | spec-publisher (Herald — gộp) | Oracle | như Oracle |
+  **MAPPING agent JSON → 15 nhân vật hiển thị** (theo `agent` trước, không có tên thì theo `role`):
 
-  Nhiều agent cùng role gộp vào 1 nhân vật (vd brainstorm + graph cùng lúc) → nhân vật đó hiện 1 lần; HUD/inspector vẫn liệt kê đủ agent.
+  | `agent` (backend) | `role` | Nhân vật | Chỗ làm việc |
+  |---|---|---|---|
+  | Nova, Orion, Lyra, Vega, Atlas, Comet | builder | cùng tên | Coding — ghế cố định theo tên (Nova G1 … Comet G6) |
+  | Sage, Iris, Juno, Echo | reviewer | cùng tên | Review R1–R4 cố định theo tên |
+  | Sherlock | error-analyzer | Sherlock | góc chữ V sau đội review |
+  | Eve | merger | Eve | trạm Merge (cả khi chỉ có `merger.active`) |
+  | Captain | dispatcher | **Theo** | bàn Plan |
+  | Muse | brainstorm | **Theo** | bàn Plan |
+  | Cartographer | graph | **Theo** | bàn Plan |
+  | Oracle | spec-validator | Oracle | cạnh Theo, quay mặt ra |
+  | Scout | spec-init | **Oracle** | như Oracle |
+  | Herald | spec-publisher | **Oracle** | như Oracle |
+  | Pixel | design | Pixel | sofa Relax |
+  | tên lạ | builder/reviewer/… | nhân vật cùng role đang trống (builder → ghế coding trống, reviewer → R trống) | — |
+  | tên lạ | role lạ | Theo | — |
+
+  **Trạng thái → hành vi:** nhân vật **làm việc** nếu ít nhất 1 agent map vào nó nằm trong `agents[]` với phase ≠ `idle` và không `stale`; ngược lại **idle** (hệ idle/break hiện có). Gộp nhiều agent (vd Captain + Muse cùng chạy) → Theo hiện 1 lần, inspector/HUD liệt kê đủ agent + task. Phase chỉ dùng để chọn khu nếu role lạ (`building`→coding, `review`→review, `merging`→Eve, `orchestrating`→Theo). `stale:true` → giữ nhân vật ở chỗ cũ nhưng làm mờ + icon "?" (không coi là rảnh). Agent biến khỏi cả 2 mảng → nhân vật về idle. Lỗi poll → giữ snapshot cuối (luật 1 nhân vật = 1 sprite vẫn áp dụng).
+  **Hành động trong lúc làm việc** vẫn chạy random như trang test (gõ, đọc, hiệu ứng đỉnh); có thể nối thêm sau: task mới → approve/stamp khi task chuyển sang `columns.done`.
 - **Pixel — prompt mục 21 (sửa 22/10): khu Relax = chỗ LÀM VIỆC RIÊNG của Pixel, một mình** (anh yêu cầu; không còn là sofa idle chung). Ngồi đoạn trái sofa, **chính diện chéo 3/4 (thấy mặt)**, sprite không vẽ sofa, seat ước lượng (1190, 785). Phong cách designer: tóc wolf-cut xanh băng lớp trong hồng + bút cài tóc, kính tròn gọng trong, headphone tai mèo ở cổ, cardigan len vàng chanh trễ vai + áo crop in vòng màu RGB, quần jean ống rộng dính sơn, sneaker đế dày dây cầu vồng; bảng vẽ, laptop dán sticker, quạt mẫu màu. 10 pose: sketch_a/b, laptop_a/b, swatch, approve (khoe bản thiết kế), think, talk, sip_tea, stretch. Con dấu dự kiến DESIGNED. Asset `public/assets/pixel/relax/`.
 - **Pixel ĐÃ CẮT + CHẠY (22/10):** sheet `public/assets/pixel/relax_sheet.png` (1500×1000, alpha thật) → `public/assets/pixel/relax/` (sketch_a/b, laptop_a/b, swatch, approve, think, talk, sip_tea, stretch).
   - Nhãn dính cả 10 ảnh; 5 ảnh khung nhãn chạm giày → dùng cách "khối nhãn có độ rộng không đổi" (đi lên từ đáy khi span ±6 px so với hàng −10, cắt cách 2 hàng) + gọt 1–3 hàng sót. ⚠ Cách "hàng hẹp < 40" cắt hỏng khi nhãn dính liền giày.
