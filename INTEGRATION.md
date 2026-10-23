@@ -146,7 +146,7 @@ Kịch bản giả lập đủ luồng template (spec → brainstorm → design 
 - Click nhân vật (trong scene, danh sách AGENTS/IDLE hoặc ô CHARACTERS) → thẻ thông tin: tên, role, đang làm gì, agent/task từ file.
 - Nút **FULLSCREEN** góc vùng làm việc hoặc phím **F**; thoát bằng **Esc**/**F**.
 - Góc phải header:
-  - **▶ DEMO** — chạy kịch bản giả lập đủ luồng (cùng kịch bản với `scripts/dummy-scenario.mjs`) **ngay trên trình duyệt**, ×3 tốc độ, ~6,5 phút/vòng, lặp lại. Dòng dưới hiện % vòng + bước hiện tại. Không ghi file nào. Mở thẳng bằng `studio.html?demo`.
+  - **▶ DEMO** — chạy kịch bản giả lập đủ luồng (cùng kịch bản với `scripts/dummy-scenario.mjs`) **ngay trên trình duyệt**, ×3 tốc độ, ~6,5 phút/vòng, lặp lại. Dòng dưới hiện % vòng + bước hiện tại. Không ghi file nào. Mở thẳng bằng `studio.html?demo` (tương tự `?random`, `?file`). Bản deploy Vercel mặc định mở ở RANDOM vì không có file JSON.
   - **🎲 RANDOM** — random trạng thái cả văn phòng (số builder/reviewer, ai trong Eve/Theo/Oracle/Pixel/Sherlock đi làm, layer, task xong/blocked). Bấm lại để random tiếp.
   - **✕** — về dữ liệu thật (file JSON). Đèn: xanh **LIVE** = file, tím **DEMO/RANDOM**, cam **NO FILE**.
 

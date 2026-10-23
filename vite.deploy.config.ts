@@ -4,5 +4,7 @@ import {defineConfig} from 'vite';
 
 export default defineConfig({
   publicDir: false,
+  // the hosted copy has no agents-live/progress files → open in RANDOM mode (?file / ✕ switches back)
+  define: {'import.meta.env.VITE_STUDIO_MODE': JSON.stringify('random')},
   build: {outDir: 'dist-deploy', emptyOutDir: true, rollupOptions: {input: ['studio.html','coding-test.html']}},
 });

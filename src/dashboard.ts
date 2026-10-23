@@ -129,7 +129,11 @@ $('b-demo').addEventListener('click',()=>setMode(getMode()==='demo'?'file':'demo
 $('b-random').addEventListener('click',()=>getMode()==='random'?reroll():setMode('random'));
 $('b-file').addEventListener('click',()=>setMode('file'));
 onModeChange(()=>{tickClock();renderBoard()});
-if(new URLSearchParams(location.search).has('demo'))setMode('demo');
+// Start mode: ?demo / ?random in the URL, else the build's default (Vercel deploy build → random, since it has
+// no JSON files to read; dev server → the real file).
+const q=new URLSearchParams(location.search);
+const start=q.has('demo')?'demo':q.has('random')?'random':q.has('file')?'file':import.meta.env.VITE_STUDIO_MODE;
+if(start==='demo'||start==='random')setMode(start);
 
 buildRoster();
 document.addEventListener('click',e=>{
