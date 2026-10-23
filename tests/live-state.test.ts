@@ -16,11 +16,15 @@ describe('LiveMapper',()=>{
     const m=new LiveMapper().map(file(['builder-1','builder','idle'],['qa-bot','tester']));
     expect(who(m)).toEqual({theo:['qa-bot']});
   });
-  it('keeps a builder on the same character while it lives',()=>{
+  it('numbered agents are fixed: builder-N and reviewer-N always get the same character',()=>{
     const mapper=new LiveMapper();
     mapper.map(file(['builder-1','builder'],['builder-2','builder']));
-    const m=mapper.map(file(['builder-2','builder'],['builder-3','builder']));
-    expect(who(m)).toEqual({orion:['builder-2'],nova:['builder-3']});
+    const m=mapper.map(file(['builder-4','builder'],['builder-6','builder-strong'],['reviewer-3','reviewer','review']));
+    expect(who(m)).toEqual({vega:['builder-4'],comet:['builder-6'],juno:['reviewer-3']});
+  });
+  it('reviewer-5/6 wrap to Sage/Iris and share the sprite',()=>{
+    const m=new LiveMapper().map(file(['reviewer-1','reviewer','review'],['reviewer-5','reviewer','review'],['reviewer-6','reviewer','review']));
+    expect(who(m)).toEqual({sage:['reviewer-1','reviewer-5'],iris:['reviewer-6']});
   });
   it('old engine names map straight, merged roles show one character',()=>{
     const m=new LiveMapper().map(file(['Captain','dispatcher'],['Muse','brainstorm'],['Scout','spec-init'],['Lyra','builder']));
@@ -32,12 +36,12 @@ describe('LiveMapper',()=>{
   });
 });
 
-describe('LiveMapper memory',()=>{
+describe('LiveMapper memory (ids without a number)',()=>{
   it('an agent coming back soon gets its old character again',()=>{
     const mapper=new LiveMapper();
-    mapper.map(file(['builder-1','builder'],['builder-2','builder']),0);
-    mapper.map(file(['reviewer-2','reviewer','review']),1000);           // both builders left
-    const m=mapper.map(file(['builder-2','builder'],['reviewer-1','reviewer','review']),2000);
-    expect(who(m).orion).toEqual(['builder-2']);
+    mapper.map(file(['builder-a','builder'],['builder-b','builder']),0);
+    mapper.map(file(['reviewer-x','reviewer','review']),1000);           // both builders left
+    const m=mapper.map(file(['builder-b','builder'],['builder-c','builder']),2000);
+    expect(who(m)).toEqual({orion:['builder-b'],nova:['builder-c']});
   });
 });
