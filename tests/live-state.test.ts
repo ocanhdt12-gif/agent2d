@@ -31,3 +31,13 @@ describe('LiveMapper',()=>{
     expect([...m.keys()].sort()).toEqual(['atlas','comet','lyra','nova','orion','vega']);
   });
 });
+
+describe('LiveMapper memory',()=>{
+  it('an agent coming back soon gets its old character again',()=>{
+    const mapper=new LiveMapper();
+    mapper.map(file(['builder-1','builder'],['builder-2','builder']),0);
+    mapper.map(file(['reviewer-2','reviewer','review']),1000);           // both builders left
+    const m=mapper.map(file(['builder-2','builder'],['reviewer-1','reviewer','review']),2000);
+    expect(who(m).orion).toEqual(['builder-2']);
+  });
+});

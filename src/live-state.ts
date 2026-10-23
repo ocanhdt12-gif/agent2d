@@ -18,7 +18,8 @@ const ROLE_CHARACTER:Record<string,string>={
   dispatcher:'theo',loop:'theo',brainstorm:'theo',graph:'theo','change-request':'theo',devops:'theo',rollback:'theo',
   'spec-init':'oracle','spec-validator':'oracle','spec-publisher':'oracle',
   design:'pixel',
-  'error-analyzer':'sherlock',
+  'error-analyzer':'sherlock','bug-check':'sherlock',
+  'context-manager':'theo',
 };
 // Old engine names (19-character roster) still map straight to a character.
 const NAME_CHARACTER:Record<string,string>={
@@ -29,14 +30,19 @@ const poolOf=(role:string)=>role==='builder'||role==='builder-strong'?BUILDERS:r
 
 export type Cast={character:string;agents:LiveAgent[]};
 
-// Keeps agent → character assignments stable across polls (builder-1 stays Nova while it lives).
+// Keeps agent → character assignments stable across polls (builder-1 stays Nova while it lives). An agent
+// that comes back within REMEMBER_MS (e.g. builder-2 fixing a review FAIL in round 2) gets its old character
+// again when that one is free.
+const REMEMBER_MS=120000;
 export class LiveMapper{
   sticky=new Map<string,string>();
-  map(file:LiveFile):Map<string,Cast>{
+  recent=new Map<string,{character:string;at:number}>();
+  map(file:LiveFile,now=Date.now()):Map<string,Cast>{
     const out=new Map<string,Cast>();
     const agents=(file.agents??[]).filter(a=>a&&typeof a.agent==='string'&&a.agent&&a.phase!=='idle');
     const live=new Set(agents.map(a=>a.agent));
-    for(const id of [...this.sticky.keys()])if(!live.has(id))this.sticky.delete(id);
+    for(const [id,character] of [...this.sticky])if(!live.has(id)){this.sticky.delete(id);this.recent.set(id,{character,at:now})}
+    for(const [id,r] of [...this.recent])if(now-r.at>REMEMBER_MS)this.recent.delete(id);
     const add=(character:string,a:LiveAgent)=>{
       const c=out.get(character)??{character,agents:[]};c.agents.push(a);out.set(character,c);
     };
@@ -56,7 +62,11 @@ export class LiveMapper{
       const pool=poolOf((a.role??'').toLowerCase())!;
       let character=this.sticky.get(a.agent);
       const taken=new Set([...this.sticky.entries()].filter(([id])=>id!==a.agent).map(([,c])=>c));
-      if(!character||!pool.includes(character))character=pool.find(c=>!taken.has(c)&&!out.has(c));
+      const free=(c:string)=>pool.includes(c)&&!taken.has(c)&&!out.has(c);
+      if(!character||!pool.includes(character)){
+        const back=this.recent.get(a.agent)?.character;
+        character=back&&free(back)?back:pool.find(free);
+      }
       // More agents than characters: share the last character (still shown once).
       character??=pool[pool.length-1];
       this.sticky.set(a.agent,character);
